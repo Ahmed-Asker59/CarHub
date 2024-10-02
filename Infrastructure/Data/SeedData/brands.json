@@ -1,0 +1,18 @@
+[
+  {
+    "Name": "Audi",
+    "ImagePath": "/images/brands/audi.png"
+  },
+  {
+    "Name": "Tesla",
+    "ImagePath": "/images/brands/tesla.png"
+  },
+  {
+    "Name": "BMW",
+    "ImagePath": "/images/brands/bmw.png"
+  },
+  {
+    "Name": "Mercedes-Benz",
+    "ImagePath": "/images/brands/mercedes.jpg"
+  }
+]

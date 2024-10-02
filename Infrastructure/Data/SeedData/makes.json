@@ -1,0 +1,30 @@
+[
+  {
+    "Name": "A4",
+    "BrandId": 1  
+
+  },
+  {
+    "Name": "Model 3",
+    "BrandId": 2    
+  },
+  {
+    "Name": "Model X",
+    "BrandId": 2    
+  },
+  {
+    "Name": "5 Series",
+    "BrandId": 3   
+
+  },
+  {
+    "Name": "3 Series",
+    "BrandId": 3    
+
+  },
+  {
+    "Name": "C-Class",
+    "BrandId": 4    
+
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "MakeId": 1, 
+    "Name": "A4 Sedan"
+  },
+  {
+    "MakeId": 2, 
+    "Name": "Model 3 Standard Range"
+  },
+  {
+    "MakeId": 2, 
+    "Name": "Model X Long Range"
+  },
+  {
+    "MakeId": 3, 
+    "Name": "530i"
+  },
+  {
+    "MakeId": 3, 
+    "Name": "330i"
+  },
+  {
+    "MakeId": 4, 
+    "Name": "C300"
+  }
+]

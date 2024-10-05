@@ -5,15 +5,8 @@ namespace API.DTO
 {
     public class CarDTO
     {
-
-        public int BrandId { get; set; }
-
-        public Brand Brand { get; set; } = null!;
-        public int MakeId { get; set; }
-
-        public Make Make { get; set; } = null!;
-        public int ModelId { get; set; }
-        public Model Model { get; set; } = null!;
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
         public ModelVariant ModelVariant { get; set; }
         public string Color { get; set; } = null!;
         public TransmissionType Transmission { get; set; }

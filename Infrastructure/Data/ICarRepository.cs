@@ -9,25 +9,28 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Data
 {
-    public class CarRepo : ICarRepo
+    public class CarRepository : ICarRepository
     {
         private readonly CarContext _context;
 
-        public CarRepo(CarContext context)
+        public CarRepository(CarContext context)
         {
             _context = context;
 
         }
-        async Task<IReadOnlyList<Car>> ICarRepo.GetCarAsync()
+        async Task<IReadOnlyList<Car>> ICarRepository.GetCarsAsync()
         {
-            return await _context.Cars.ToListAsync();
+            return await _context.Cars
+                         .Include(c => c.Brand)
+                         .Include(c => c.Make)
+                         .Include(c => c.Model).ToListAsync();
         }
 
-        async Task<Car> ICarRepo.GetCarByIdAsync(int id)
+        async Task<Car> ICarRepository.GetCarByIdAsync(int id)
         {
             return await _context.Cars.FindAsync(id);
         }
 
-
+      
     }
 }

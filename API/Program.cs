@@ -1,3 +1,4 @@
+using Core.Interface;
 using Infrastructure;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +18,7 @@ builder.Services.AddDbContext<CarContext>(opt =>
 });
 
 
-builder.Services.AddScoped<ICarRepo, CarRepo>();
+builder.Services.AddScoped<ICarRepository, CarRepository>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 

@@ -8,7 +8,8 @@ namespace API.Helper
         public MappingProfiles()
         {
             CreateMap<Car, CarDTO>().
-                ForMember(d => d.ImagePath, o => o.MapFrom<CarUrlResoler>());
+                ForMember(d => d.ImagePath, o => o.MapFrom<CarUrlResolver>()).
+                ForMember(d => d.Name, o => o.MapFrom(o => o.Brand.Name + " "  + o.Model.Name + " " + o.ModelVariant));
         }
 
     }

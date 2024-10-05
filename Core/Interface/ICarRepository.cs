@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace Core.Interface
 {
-    public interface ICarRepo
+    public interface ICarRepository
     {
         Task<Car> GetCarByIdAsync(int id);
-        Task<IReadOnlyList<Car>> GetCarAsync();
+        Task<IReadOnlyList<Car>> GetCarsAsync();
 
 
 

@@ -25,9 +25,10 @@ namespace API.Controllers
         [HttpGet]
         public async Task<ActionResult<List<CarDTO>>> GetCars()
         {
-            var Cars = await _carRepository.GetCarsAsync();
+            var cars = await _carRepository.GetCarsAsync();
 
-            return Ok(_mapper.Map<IReadOnlyList<Car>, IReadOnlyList<CarDTO>>(Cars));
+          
+            return Ok(_mapper.Map<IReadOnlyList<Car>, IReadOnlyList<CarDTO>>(cars));
 
         }
 

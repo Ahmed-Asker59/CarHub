@@ -2,6 +2,7 @@ using Core.Interface;
 using Infrastructure;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,13 @@ builder.Services.AddDbContext<CarContext>(opt =>
 
 builder.Services.AddScoped<ICarRepository, CarRepository>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
+    });
+});
 
 
 var app = builder.Build();
@@ -34,7 +42,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
-
+app.UseCors("CorsPolicy");
 
 app.UseAuthorization();
 

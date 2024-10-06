@@ -11,19 +11,21 @@ namespace API.Controllers
     [ApiController]
     public class CarController : ControllerBase
     {
-        private readonly ICarRepository _carRepo;
+        private readonly ICarRepository _carRepository;
         private readonly IMapper _mapper;
 
-        public CarController(ICarRepository carRepo, IMapper mapper)
+        public CarController(ICarRepository carRepository, IMapper mapper)
         {
-            _carRepo = carRepo;
+            _carRepository = carRepository;
             _mapper = mapper;
 
         }
+
+
         [HttpGet]
         public async Task<ActionResult<List<CarDTO>>> GetCars()
         {
-            var Cars = await _carRepo.GetCarsAsync();
+            var Cars = await _carRepository.GetCarsAsync();
 
             return Ok(_mapper.Map<IReadOnlyList<Car>, IReadOnlyList<CarDTO>>(Cars));
 
@@ -36,11 +38,9 @@ namespace API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<CarDTO>> GetCar(int id)
         {
-            var Car = await _carRepo.GetCarByIdAsync(id);
+            var Car = await _carRepository.GetCarByIdAsync(id);
 
             return _mapper.Map<Car, CarDTO>(Car);
-         
-
 
         }
 

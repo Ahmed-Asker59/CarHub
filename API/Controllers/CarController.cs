@@ -3,6 +3,7 @@ using AutoMapper;
 using Core.Entities;
 using Core.Entities.Consts;
 using Core.Interface;
+using Core.Specifications;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,6 +40,7 @@ namespace API.Controllers
         {
             var Cars = await _carRepository.GetCarsAsync();
             IQueryable query = Cars.AsQueryable();
+            PaginationList paginationList ;
             if(makeId != null)
             {
                 Cars.Where(car => car.MakeId == makeId.Value);
@@ -92,16 +94,17 @@ namespace API.Controllers
                 case ("brand"): Cars.OrderBy(car => car.Brand.Name); break;
                 default: Cars.OrderBy(car => car.Make.Name);break;
             }
-
-            var totalRecords = Cars.Count(); // Get the total count of records before pagination
+           
             var paginatedCars = Cars.Skip(pageNumber).Take(pageSize).ToList();
-
-            return Ok(new
+           
+             paginationList = new PaginationList
             {
-                TotalRecords = totalRecords,
-                PageSize=pageSize,PageNumber=pageNumber,
-                Cars = _mapper.Map<IReadOnlyList<Car>, IReadOnlyList<CarDTO>>(paginatedCars)
-            });
+                PageSize = pageSize,
+                PageIndex = pageNumber,
+                Count = Cars.Count(),
+                 Data = _mapper.Map<IReadOnlyList<CarDTO>>(paginatedCars)
+             };
+            return Ok(paginationList);
            
         }
 

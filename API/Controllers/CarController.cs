@@ -1,6 +1,7 @@
 ﻿using API.DTO;
 using AutoMapper;
 using Core.Entities;
+using Core.Entities.Consts;
 using Core.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,13 +24,88 @@ namespace API.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<List<CarDTO>>> GetCars()
+        public async Task<ActionResult<List<CarDTO>>> GetCars(
+        int? makeId, int? modelId,
+        ModelVariant? modelVariant,
+        CarCondition? carCondition,
+        int? priceFrom,int? priceTo,
+        FuelType? fuel,
+        int? yearFrom,int? yearTo,
+        int? mileageFrom,int? mileageTo,
+        string? color,
+        string sortBy = "make",
+        int pageNumber = 0,
+        int pageSize = 10) 
         {
             var Cars = await _carRepository.GetCarsAsync();
+            IQueryable query = Cars.AsQueryable();
+            if(makeId != null)
+            {
+                Cars.Where(car => car.MakeId == makeId.Value);
+            }
+            if (modelId != null)
+            {
+                Cars.Where(car => car.ModelId == modelId.Value);
+            }
+            if (modelVariant != null) { 
+            Cars.Where(car=>car.ModelVariant == modelVariant.Value);
+            }
+            if (carCondition != null) { 
+            Cars.Where(car=>car.CarCondition== carCondition.Value);
+            }
+            if (priceFrom != null) { 
+            Cars.Where(car=>car.Price>= priceFrom.Value);
+            }
+            if (priceTo != null)
+            {
+                Cars.Where(car => car.Price <= priceTo.Value);
+            }
+            if(fuel != null)
+            {
+                Cars.Where(car=>car.Fuel== fuel.Value);
+            }
+            if (mileageFrom != null)
+            {
+                Cars.Where(car => car.Mileage >= mileageFrom.Value);
+            }
+            if (mileageTo != null)
+            {
+                Cars.Where(car => car.Mileage <= mileageTo.Value);
+            }
+            if (yearFrom != null) {
+                Cars.Where(car => car.ManufactureYear >= yearFrom.Value);
+            }
+            if (yearTo != null)
+            {
+                Cars.Where(car => car.ManufactureYear <= yearTo.Value);
+            }
+            if(color != null)
+            {
+                Cars.Where(car => car.Color == color);
+            }
 
-            return Ok(_mapper.Map<IReadOnlyList<Car>, IReadOnlyList<CarDTO>>(Cars));
 
+            switch ( sortBy.ToLower()) 
+            {
+               case ("make"): Cars.OrderBy(car => car.Make.Name); break;
+                case ("model"): Cars.OrderBy(car => car.Model.Name); break;
+                case ("brand"): Cars.OrderBy(car => car.Brand.Name); break;
+                default: Cars.OrderBy(car => car.Make.Name);break;
+            }
+
+            var totalRecords = Cars.Count(); // Get the total count of records before pagination
+            var paginatedCars = Cars.Skip(pageNumber).Take(pageSize).ToList();
+
+            return Ok(new
+            {
+                TotalRecords = totalRecords,
+                PageSize=pageSize,PageNumber=pageNumber,
+                Cars = _mapper.Map<IReadOnlyList<Car>, IReadOnlyList<CarDTO>>(paginatedCars)
+            });
+           
         }
+
+         
 
 
 

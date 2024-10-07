@@ -9,7 +9,10 @@ namespace Core.Specifications
 {
     public class PaginationList
     {
-        public PaginationList() { }
+        public PaginationList()
+        {
+            
+        }
         public PaginationList(int pageIndex,int pageSize,int count , IReadOnlyList<object> data) {
         PageIndex= pageIndex;
         PageSize= pageSize;

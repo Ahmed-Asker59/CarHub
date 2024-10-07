@@ -86,7 +86,6 @@ namespace API.Controllers
                 Cars.Where(car => car.Color == color);
             }
 
-
             switch ( sortBy.ToLower()) 
             {
                case ("make"): Cars.OrderBy(car => car.Make.Name); break;
@@ -109,8 +108,6 @@ namespace API.Controllers
         }
 
          
-
-
 
 
 

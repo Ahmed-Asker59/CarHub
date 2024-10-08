@@ -18,11 +18,15 @@ namespace Infrastructure.Data
     {
         private readonly CarContext _context;
         private readonly IMapper _mapper;
+ 
 
         public CarRepository(CarContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
+
+            
+
         }
         async Task<IReadOnlyList<Car>> ICarRepository.GetCarsAsync()
         {
@@ -37,6 +41,10 @@ namespace Infrastructure.Data
             return await _context.Cars.FindAsync(id);
         }
 
+        public static string GetEnumStringValue(ModelVariant modelVariant)
+        {
+            return modelVariant.ToString().ToLower();
+        }
         public async Task<IReadOnlyList<Car>> GetCarsWithSpecificationsAsync(CarSpecParams carParams)
         {
 
@@ -47,13 +55,13 @@ namespace Infrastructure.Data
                .Include(c => c.Model);
 
 
-           
+
             query = query.Where(c =>
              (string.IsNullOrEmpty(carParams.SearchValue) || c.Brand.Name.ToLower().Contains(carParams.SearchValue)
-              || c.Brand.Name.Contains(carParams.SearchValue) || c.Model.Name.ToLower().Contains(carParams.SearchValue)
+              || c.Model.Name.ToLower().Contains(carParams.SearchValue)
              || c.Make.Name.Contains(carParams.SearchValue))
 
-              && (!carParams.makeId.HasValue || c.MakeId == carParams.makeId)
+            && (!carParams.makeId.HasValue || c.MakeId == carParams.makeId)
             && (!carParams.modelId.HasValue || c.ModelId == carParams.modelId)
             && (!carParams.modelVariant.HasValue || c.ModelVariant == carParams.modelVariant)
             && (!carParams.carCondition.HasValue || c.CarCondition == carParams.carCondition)
@@ -62,6 +70,8 @@ namespace Infrastructure.Data
             && (!carParams.fuel.HasValue || c.Fuel == carParams.fuel)
             && (!carParams.yearFrom.HasValue || c.ManufactureYear >= carParams.yearFrom)
             && (!carParams.yearTo.HasValue || c.ManufactureYear <= carParams.yearTo)
+            && (!carParams.mileageFrom.HasValue || c.Mileage >= carParams.yearTo)
+            && (!carParams.mileageTo.HasValue || c.Mileage <= carParams.yearTo)
             && (carParams.color == null || c.Color == carParams.color)
             );
 

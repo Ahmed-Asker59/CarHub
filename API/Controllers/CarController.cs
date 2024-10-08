@@ -17,22 +17,19 @@ namespace API.Controllers
     public class CarController : ControllerBase
     {
         private readonly ICarRepository _carRepository;
-        private readonly CarContext _carContext;
         private readonly IMapper _mapper;
 
         public CarController(ICarRepository carRepository, IMapper mapper, CarContext carContext)
         {
             _carRepository = carRepository;
             _mapper = mapper;
-            _carContext = carContext;
         }
 
 
         [HttpGet]
         public async Task<ActionResult<List<CarDTO>>> GetCars([FromQuery] CarSpecParams carParams)
         {
-
-
+            
             var carsWithSpecifiactions = await _carRepository.GetCarsWithSpecificationsAsync(carParams);
 
             var paginationList = new PaginationList

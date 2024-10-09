@@ -1,6 +1,4 @@
-﻿
-
-using Core.Entities.Consts;
+﻿using Core.Entities.Consts;
 using System.Security.AccessControl;
 
 namespace Core.Specifications

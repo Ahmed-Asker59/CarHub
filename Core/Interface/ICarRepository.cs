@@ -15,7 +15,7 @@ namespace Core.Interface
         Task<IReadOnlyList<Car>> GetCarsAsync();
 
         Task<int> CountAsync();
-        Task<IReadOnlyList<Car>> GetCarsWithSpecificationsAsync(CarSpecParams carParams);
+        Task<(IReadOnlyList<Car>cars,int totalCount)> GetCarsWithSpecificationsAsync(CarSpecParams carParams);
 
 
 

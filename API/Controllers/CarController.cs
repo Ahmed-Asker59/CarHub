@@ -40,7 +40,7 @@ namespace API.Controllers
                 Data = _mapper.Map<IReadOnlyList<CarDTO>>(carsWithSpecifiactions)
             };
 
-
+            
             return Ok(paginationList);
            
         }
@@ -57,6 +57,48 @@ namespace API.Controllers
             return _mapper.Map<Car, CarDTO>(Car);
 
         }
+
+
+        [HttpGet("makes")]
+        public async Task<ActionResult<List<MakeDTO>>> GetMakes([FromQuery] int? brandId, [FromQuery] int? makeId, [FromQuery] int? modelId)
+        {
+
+
+           var makes = await _carRepository.GetMakesAsync(brandId, makeId, modelId);
+
+           var makesMapped = _mapper.Map<IReadOnlyList<MakeDTO>>(makes);
+
+            return Ok(makesMapped);
+            
+        }
+
+        [HttpGet("models")]
+        public async Task<ActionResult<List<ModelDTO>>> GetModels([FromQuery] int brandId ,[FromQuery] int? makeId, [FromQuery] int? modelId )
+        {
+
+
+            var models = await _carRepository.GetModelsAsync(brandId, makeId, modelId);
+
+            var modelsMapped = _mapper.Map<IReadOnlyList<ModelDTO>>(models);
+
+            return Ok(modelsMapped);
+
+        }
+
+
+        [HttpGet("modelvariants")]
+       public async Task<ActionResult<List<ModelVariantDTO>>> GetModelVariants([FromQuery] int? brandId, [FromQuery] int? makeId, [FromQuery] int? modelId)
+        {
+
+
+           var modelVariants = await _carRepository.GetModelVariantsAsync(brandId, makeId, modelId);
+
+           var modelsVariantsMapped = _mapper.Map<IReadOnlyList<ModelVariantDTO>>(modelVariants);
+
+           return Ok(modelsVariantsMapped);
+
+        }
+
 
     }
 }

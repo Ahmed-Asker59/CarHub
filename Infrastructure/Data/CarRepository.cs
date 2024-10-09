@@ -5,12 +5,7 @@ using Core.Interface;
 using Core.Specifications;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Buffers;
+
 
 namespace Infrastructure.Data
 {
@@ -90,6 +85,38 @@ namespace Infrastructure.Data
             return await _context.Cars.CountAsync();
         }
 
-        
+        public async Task<IReadOnlyList<Make>> GetMakesAsync(int? brandId, int? makeId, int? modelId)
+        {
+           var makes = await _context.Makes
+                           .Where(m => ( !brandId.HasValue || m.BrandId == brandId)
+                                  && (!makeId.HasValue || m.Id == makeId)
+                                  && (!modelId.HasValue || m.Models.Any(model => model.Id == modelId))
+                                  )
+                           .ToListAsync();
+
+            return makes;
+        }
+
+        public async Task<IReadOnlyList<Model>> GetModelsAsync(int? brandId, int? makeId, int? modelId)
+        {
+          var models = await _context.Models.Where(m => (!brandId.HasValue || m.Make.BrandId == brandId.Value)
+                                        && (!makeId.HasValue || m.MakeId == makeId)
+                                        && (!modelId.HasValue || m.Id == modelId))
+                                     .ToListAsync();
+
+            return models;
+        }
+
+        public async Task<IReadOnlyList<ModelVariant>> GetModelVariantsAsync(int? brandId, int? makeId, int? modelId)
+        {
+            var modelVariants = await _context.Cars
+                                       .Where(c => (!brandId.HasValue || c.BrandId == brandId)
+                                        && (!makeId.HasValue || c.MakeId == makeId)
+                                        && (!modelId.HasValue || c.ModelId == modelId))
+                                       .Select(c => c.ModelVariant)
+                                        .ToListAsync();
+
+            return modelVariants;
+        }
     }
 }

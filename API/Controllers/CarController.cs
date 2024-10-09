@@ -33,21 +33,24 @@ namespace API.Controllers
         {
 
 
-            var (cars,totalCount) = await _carRepository.GetCarsWithSpecificationsAsync(carParams);
+            var carsWithSpecifiactions = await _carRepository.GetCarsWithSpecificationsAsync(carParams);
 
             var paginationList = new PaginationList
             {
                 PageSize = carParams.PageSize,
                 PageIndex = carParams.PageIndex,
-                Count = totalCount,
-                Data = _mapper.Map<IReadOnlyList<CarDTO>>(cars)
+                Count = carsWithSpecifiactions.Count(),
+                Data = _mapper.Map<IReadOnlyList<CarDTO>>(carsWithSpecifiactions)
             };
 
 
             return Ok(paginationList);
            
         }
-        
+
+         
+
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<CarDTO>> GetCar(int id)

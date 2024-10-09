@@ -5,6 +5,12 @@ using Core.Interface;
 using Core.Specifications;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Buffers;
 
 namespace Infrastructure.Data
 {
@@ -31,7 +37,7 @@ namespace Infrastructure.Data
             return await _context.Cars.FindAsync(id);
         }
 
-        public async Task<(IReadOnlyList<Car> cars,int totalCount)> GetCarsWithSpecificationsAsync(CarSpecParams carParams)
+        public async Task<IReadOnlyList<Car>> GetCarsWithSpecificationsAsync(CarSpecParams carParams)
         {
 
 
@@ -58,17 +64,15 @@ namespace Infrastructure.Data
             && (!carParams.yearTo.HasValue || c.ManufactureYear <= carParams.yearTo)
             && (carParams.color == null || c.Color == carParams.color)
             );
-       
-            query = query.OrderBy($"{carParams.sortBy} {carParams.sortDirection}");
 
-            var totalCount = await CountAsync();
+            query = query.OrderBy($"{carParams.sortBy} {carParams.sortDirection}");
 
             var cars = await query.Skip(carParams.PageSize * (carParams.PageIndex-1))
                                   .Take(carParams.PageSize)
                                   .ToListAsync();
 
            
-            return (cars,totalCount);
+            return cars;
         }
 
         public async Task<int> CountAsync()
@@ -76,6 +80,6 @@ namespace Infrastructure.Data
             return await _context.Cars.CountAsync();
         }
 
-      
+        
     }
 }

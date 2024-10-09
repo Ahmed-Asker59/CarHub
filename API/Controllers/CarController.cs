@@ -1,4 +1,5 @@
 ﻿using API.DTO;
+using API.Helper;
 using AutoMapper;
 using Core.Entities;
 using Core.Entities.Consts;
@@ -8,6 +9,7 @@ using Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 
 namespace API.Controllers
@@ -32,12 +34,19 @@ namespace API.Controllers
             
             var carsWithSpecifiactions = await _carRepository.GetCarsWithSpecificationsAsync(carParams);
 
+
+            // Get updated filter options based on filtered cars
+            var filterOptions = new FilterOptionsResolver(carsWithSpecifiactions).GenerateOptions();
+
+            
             var paginationList = new PaginationList
             {
                 PageSize = carParams.PageSize,
                 PageIndex = carParams.PageIndex,
                 Count = await _carRepository.CountAsync(),
-                Data = _mapper.Map<IReadOnlyList<CarDTO>>(carsWithSpecifiactions)
+                Data = _mapper.Map<IReadOnlyList<CarDTO>>(carsWithSpecifiactions),
+                FilterOptions = filterOptions
+                
             };
 
             

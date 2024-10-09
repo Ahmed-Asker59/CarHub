@@ -7,6 +7,7 @@ namespace API.DTO
     {
         public int Id { get; set; } 
         public string Name { get; set; } = null!;
+       
         public ModelVariant ModelVariant { get; set; }
         public string Color { get; set; } = null!;
         public TransmissionType Transmission { get; set; }
@@ -17,5 +18,7 @@ namespace API.DTO
         public bool IsAvailableForReserve { get; set; }
         public bool IsAvailableForRental { get; set; }
         public string? ImagePath { get; set; }
+
+        
     }
 }

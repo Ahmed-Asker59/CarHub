@@ -1,4 +1,5 @@
-﻿using Core.Entities;
+﻿using API.Helper;
+using Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,10 @@ namespace Core.Specifications
         public int PageSize { get; set; }
         public int Count { get; set; }
         public IReadOnlyList<object> Data { get; set; }
+
+        public FilterOptions FilterOptions { get; set; }
+
+       
 
     }
 }

@@ -5,7 +5,7 @@ namespace API.DTO
 {
     public class CarDTO
     {
-        public int Id { get; set; }
+        public int Id { get; set; } 
         public string Name { get; set; } = null!;
         public ModelVariant ModelVariant { get; set; }
         public string Color { get; set; } = null!;

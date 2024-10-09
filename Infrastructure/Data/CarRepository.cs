@@ -13,14 +13,14 @@ namespace Infrastructure.Data
     {
         private readonly CarContext _context;
         private readonly IMapper _mapper;
- 
+
 
         public CarRepository(CarContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
 
-            
+
 
         }
         async Task<IReadOnlyList<Car>> ICarRepository.GetCarsAsync()
@@ -54,7 +54,8 @@ namespace Infrastructure.Data
             query = query.Where(c =>
              (string.IsNullOrEmpty(carParams.SearchValue) || c.Brand.Name.ToLower().Contains(carParams.SearchValue)
               || c.Model.Name.ToLower().Contains(carParams.SearchValue)
-             || c.Make.Name.Contains(carParams.SearchValue))
+             || c.Make.Name.Contains(carParams.SearchValue)
+              || c.Color.ToLower().Contains(carParams.SearchValue))
 
             && (!carParams.makeId.HasValue || c.MakeId == carParams.makeId)
             && (!carParams.modelId.HasValue || c.ModelId == carParams.modelId)

@@ -36,7 +36,7 @@ namespace API.Controllers
             {
                 PageSize = carParams.PageSize,
                 PageIndex = carParams.PageIndex,
-                Count = carsWithSpecifiactions.Count(),
+                Count = await _carRepository.CountAsync(),
                 Data = _mapper.Map<IReadOnlyList<CarDTO>>(carsWithSpecifiactions)
             };
 

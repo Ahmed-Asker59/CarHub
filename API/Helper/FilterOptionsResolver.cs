@@ -13,9 +13,9 @@ namespace API.Helper
 
         }
 
-        public FilterOptionsDTO GenerateOptions()
+        public FilterOptions GenerateOptions()
         {
-            var filterOptionsDTO = new FilterOptionsDTO
+            var filterOptions = new FilterOptions
             {
                 Makes = cars.Select(c => c.Brand).Distinct().ToList(),
                 Models = cars.Select(c => c.Model).Distinct().ToList(),
@@ -26,7 +26,7 @@ namespace API.Helper
                 CarConditions = cars.Select(c => c.CarCondition.ToString()).Distinct().ToList()
             };
 
-            return filterOptionsDTO;
+            return filterOptions;
         }
     }
 }

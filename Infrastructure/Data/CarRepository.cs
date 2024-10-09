@@ -70,6 +70,9 @@ namespace Infrastructure.Data
             && (carParams.color == null || c.Color == carParams.color)
             );
 
+            if (carParams.sortBy.ToLower() == "name")
+                carParams.sortBy = SortByOptions.Name;
+
             query = query.OrderBy($"{carParams.sortBy} {carParams.sortDirection}");
 
             var cars = await query.Skip(carParams.PageSize * (carParams.PageIndex-1))
@@ -118,5 +121,20 @@ namespace Infrastructure.Data
 
             return modelVariants;
         }
+
+        public async Task<IReadOnlyList<CarCondition>> GetCarConditionsAsync(int? brandId, int? makeId, int? modelId)
+        {
+            var carConditions = await _context.Cars
+                                       .Where(c => (!brandId.HasValue || c.BrandId == brandId)
+                                        && (!makeId.HasValue || c.MakeId == makeId)
+                                        && (!modelId.HasValue || c.ModelId == modelId))
+                                       .Select(c => c.CarCondition)
+                                        .ToListAsync();
+
+            return carConditions;
+
+        }
+
     }
+
 }

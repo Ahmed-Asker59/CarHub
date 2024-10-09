@@ -20,5 +20,6 @@ namespace Core.Interface
    
         Task<IReadOnlyList<Model>> GetModelsAsync(int? brandId, int? makeId, int? modelId);
         Task<IReadOnlyList<ModelVariant>> GetModelVariantsAsync(int? brandId, int? makeId, int? modelId);
+        Task<IReadOnlyList<CarCondition>> GetCarConditionsAsync(int? brandId, int? makeId, int? modelId);
     }
 }

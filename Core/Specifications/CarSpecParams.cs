@@ -32,8 +32,8 @@ namespace Core.Specifications
         public int? mileageFrom { get; set; }
         public int? mileageTo { get; set; }
         public string? color { get; set; }
-        public string sortBy { get; set; } = "model";
-        public string sortDirection { get; set; } = "asc";
+        public string sortBy { get; set; } = SortByOptions.Name;
+        public string sortDirection { get; set; } = SortByDirections.Asc;
 
         private string? _searchValue;
 

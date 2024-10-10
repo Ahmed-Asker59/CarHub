@@ -36,7 +36,7 @@ namespace API.Controllers
 
 
             // Get updated filter options based on filtered cars
-            var filterOptions = new FilterOptionsResolver(carsWithSpecifiactions).GenerateOptions();
+            var filterOptions = new FilterOptionsResolver(carsWithSpecifiactions,_mapper).GenerateOptions();
 
             
             var paginationList = new PaginationList

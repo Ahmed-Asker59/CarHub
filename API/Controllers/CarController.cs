@@ -61,9 +61,12 @@ namespace API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<CarDTO>> GetCar(int id)
         {
-            var Car = await _carRepository.GetCarByIdAsync(id);
+            var car = await _carRepository.GetCarByIdAsync(id);
+            if(car is null)
+                return NotFound();
 
-            return _mapper.Map<Car, CarDTO>(Car);
+            var carMapped = _mapper.Map<CarDTO>(car);
+            return Ok(carMapped);
 
         }
 

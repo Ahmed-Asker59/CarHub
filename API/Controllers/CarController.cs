@@ -66,7 +66,12 @@ namespace API.Controllers
                 return NotFound();
 
             var carMapped = _mapper.Map<CarDTO>(car);
+
             carMapped.IsReserved = await _carRepository.IsReservedAsync(id);
+
+
+           
+
             return Ok(carMapped);
 
         }

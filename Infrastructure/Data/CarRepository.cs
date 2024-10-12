@@ -31,9 +31,15 @@ namespace Infrastructure.Data
                          .Include(c => c.Model).ToListAsync();
         }
 
-        async Task<Car> ICarRepository.GetCarByIdAsync(int id)
+        async Task<Car?> ICarRepository.GetCarByIdAsync(int id)
         {
-            return await _context.Cars.FindAsync(id);
+            return await _context.Cars
+                                 .Where(c => c.Id == id)
+                                 .Include(c => c.Brand)
+                                 .Include(c => c.Make)
+                                 .Include( c => c.Model)
+                                 .FirstOrDefaultAsync();
+                                  
         }
 
         public static string GetEnumStringValue(ModelVariant modelVariant)
@@ -55,8 +61,8 @@ namespace Infrastructure.Data
              (string.IsNullOrEmpty(carParams.SearchValue) || c.Brand.Name.ToLower().Contains(carParams.SearchValue)
               || c.Model.Name.ToLower().Contains(carParams.SearchValue)
              || c.Make.Name.Contains(carParams.SearchValue)
-              || c.Color.ToLower().Contains(carParams.SearchValue))
-
+              || c.Color.ToLower().Contains(carParams.SearchValue)  
+              )
             && (!carParams.makeId.HasValue || c.MakeId == carParams.makeId)
             && (!carParams.modelId.HasValue || c.ModelId == carParams.modelId)
             && (!carParams.modelVariant.HasValue || c.ModelVariant == carParams.modelVariant)

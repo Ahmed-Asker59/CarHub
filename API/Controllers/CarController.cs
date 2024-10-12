@@ -66,6 +66,8 @@ namespace API.Controllers
                 return NotFound();
 
             var carMapped = _mapper.Map<CarDTO>(car);
+
+           
             return Ok(carMapped);
 
         }

@@ -15,8 +15,11 @@ namespace API.DTO
         public CarCondition CarCondition { get; set; }
         public decimal Price { get; set; }
         public int ManufactureYear { get; set; }
+
         public bool IsAvailableForReserve { get; set; }
+
         public bool IsAvailableForRental { get; set; }
+
         public string? ImagePath { get; set; }
 
         

@@ -20,8 +20,6 @@ namespace Infrastructure.Data
             _context = context;
             _mapper = mapper;
 
-
-
         }
         async Task<IReadOnlyList<Car>> ICarRepository.GetCarsAsync()
         {
@@ -142,6 +140,10 @@ namespace Infrastructure.Data
 
         }
 
+        public async Task<bool> IsReservedAsync(int carId)
+        {
+            return await _context.Reservations.AnyAsync(r=>r.CarId == carId);
+        }
     }
 
 }

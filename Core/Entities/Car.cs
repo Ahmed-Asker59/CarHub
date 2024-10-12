@@ -26,7 +26,6 @@ namespace Core.Entities
         public Model Model { get; set; } = null!;
 
 
-
         public ModelVariant ModelVariant { get; set; }
 
 

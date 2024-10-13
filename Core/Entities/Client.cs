@@ -36,5 +36,7 @@ namespace Core.Entities
         [StringLength(11)]
         public string Phone { get; set; } = null!;
 
+        public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
+
     }
 }

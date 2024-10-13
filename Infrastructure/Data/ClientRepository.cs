@@ -17,7 +17,7 @@ namespace Infrastructure.Data
         {
             _context = context;
         }
-        public async Task<Client> AddClientAsync(Client client)
+        public async Task<int> AddClientAsync(Client client)
         {
             var newClient = new Client()
             {
@@ -30,13 +30,17 @@ namespace Infrastructure.Data
             };
             await _context.Clients.AddAsync(newClient);
             await _context.SaveChangesAsync();
-            return newClient;
+            return newClient.Id;
         }
 
         public async Task<Client> GetClientByIdAsync(int Id)
         {
             var client = await _context.Clients.SingleOrDefaultAsync(c => c.Id == Id);
             return client;
+        }
+        public Task<Client?> GetClientByNationalIdAsync(string nationalId)
+        {
+            return _context.Clients.SingleOrDefaultAsync(c => c.NationalId == nationalId);
         }
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Data.Migrations
 {
     [DbContext(typeof(CarContext))]
-    [Migration("20241012203545_addReservationModel")]
-    partial class addReservationModel
+    [Migration("20241013123212_AddReservationEntity")]
+    partial class AddReservationEntity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

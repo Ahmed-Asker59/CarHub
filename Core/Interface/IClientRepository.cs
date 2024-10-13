@@ -10,6 +10,8 @@ namespace Core.Interface
     public interface IClientRepository
     {
         Task<Client> GetClientByIdAsync(int Id);
-        Task<Client> AddClientAsync(Client client);
+        Task<int> AddClientAsync(Client client);
+        Task<Client?> GetClientByNationalIdAsync(string nationalId);
+
     }
 }

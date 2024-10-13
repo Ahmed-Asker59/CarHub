@@ -15,6 +15,8 @@ namespace API.Helper
                 
             CreateMap<Make, MakeDTO>();
 
+            CreateMap<ClientDTO, Client>();
+
             CreateMap<Model, ModelDTO>();
 
             CreateMap<ModelVariant, ModelVariantDTO>()

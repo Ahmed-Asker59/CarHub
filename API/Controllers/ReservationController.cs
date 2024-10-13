@@ -28,8 +28,8 @@ public class ReservationController : ControllerBase
 
 
 
-    [HttpPost("allowedtoreserve")]
-    public async Task<ActionResult> IsAllowedTReserve(string nationalId)
+    [HttpGet("allowedtoreserve/{nationalId}")]
+    public async Task<ActionResult> IsAllowedToReserve(string nationalId)
     {
         var client = await _clientRepository.GetClientByNationalIdAsync(nationalId);
 

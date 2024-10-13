@@ -32,59 +32,72 @@ namespace API.Controllers
         }
 
 
-
         [HttpPost("allowedtoreserve")]
-        public async Task<ActionResult> IsAllowedTReserve(ClientDTO clientDto)
+        public async Task<ActionResult> IsAllowedToReserve(ClientDTO clientDto)
         {
             var client = await _clientRepository.GetClientByNationalIdAsync(clientDto.NationalId);
 
-            if(client is null)
+            if (client == null)
             {
-                return Ok("Client did not reserve before");
+                var newClient = _mapper.Map<Client>(clientDto); 
+                var newClientId = await _clientRepository.AddClientAsync(newClient); 
+
+                return Ok(new
+                {
+                    allowed = true,
+                    message = "Client did not exist before, but is now created. You can proceed to reserve.",
+                    nationalId = newClient.NationalId 
+                });
             }
 
+            
             var lastReservation = client.Reservations.LastOrDefault();
-            if (lastReservation is not null && lastReservation.EndDate < DateTime.Now)
+            if (lastReservation != null && lastReservation.EndDate > DateTime.Now)
             {
-                return BadRequest("Client already has an active reservation.");
+                return BadRequest(new
+                {
+                    allowed = false,
+                    message = "Client already has an active reservation."
+                });
             }
-
-            return Ok("Last Reservation Has Already ended");
-
+        
+            return Ok(new
+            {
+                allowed = true,
+                message = "Last reservation has ended. You can reserve now.",
+                nationalId = clientDto.NationalId 
+            });
         }
 
 
-        [HttpPost("reserve")]
-        public async Task<ActionResult> ReserveCar([FromBody] ClientDTO clientDTO, [FromQuery] int cardId)
+        [HttpPost("reserve")]        
+        public async Task<ActionResult> ReserveCar([FromQuery] string nationalId, [FromQuery] int carId)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var car = await _carRepository.GetCarByIdAsync(cardId);
-            if (car is null)
+            var car = await _carRepository.GetCarByIdAsync(carId);
+            if (car == null)
             {
-                return NotFound("Car is not Found");
+                return NotFound("Car not found.");
             }
             if (car.IsDeleted || !car.IsAvailableForReserve)
             {
-                return BadRequest("Car is either not available for reservation or does not exist");
+                return BadRequest("Car is either not available for reservation or does not exist.");
             }
 
-            var client = await _clientRepository.GetClientByNationalIdAsync(clientDTO.NationalId);
+            
+            var client = await _clientRepository.GetClientByNationalIdAsync(nationalId);
 
-            if (client is not null)
+           
+            var lastReservation = client.Reservations.LastOrDefault();
+            if (lastReservation != null && lastReservation.EndDate > DateTime.Now)
             {
-                 await _reservationRepository.CreateReservationAsync(client.Id, car.Id);    
+                return BadRequest("Client already has an active reservation.");
             }
-            else
-            {
-                var clientToAdd = _mapper.Map<Client>(clientDTO);
-                var clientId = await _clientRepository.AddClientAsync(clientToAdd);
-
-                await _reservationRepository.CreateReservationAsync(clientId, car.Id);
-            }
-
-            return Ok("Reservation Completed Successfully");
+            
+            await _reservationRepository.CreateReservationAsync(client.Id, car.Id);
+            return Ok("Reservation completed successfully.");
         }
     }
 }

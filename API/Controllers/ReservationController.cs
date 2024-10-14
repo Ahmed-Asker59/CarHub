@@ -81,17 +81,17 @@ public class ReservationController : ControllerBase
 
         if (client is not null)
         {
-            await _reservationRepository.CreateReservationAsync(client.Id, car.Id);
+            await _reservationRepository.CreateReservationAsync(car.Id, client.Id );
         }
         else
         {
             var clientToAdd = _mapper.Map<Client>(clientDTO);
             var clientId = await _clientRepository.AddClientAsync(clientToAdd);
 
-            await _reservationRepository.CreateReservationAsync(clientId, car.Id);
+            await _reservationRepository.CreateReservationAsync( car.Id, clientId);
         }
 
-        return Ok("Reservation Completed Successfully");
+        return Ok();
     }
 
     

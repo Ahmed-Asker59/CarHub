@@ -20,11 +20,11 @@ namespace API.DTO
         public bool IsAvailableForReserve { get; set; }
 
         public bool IsReserved { get; set; }
+        public bool IsRented { get; set; }
         public decimal? ReservationFee { get; set; }
         public bool IsAvailableForRental { get; set; }
 
         public string? ImagePath { get; set; }
-
         
     }
 }

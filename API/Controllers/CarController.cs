@@ -69,7 +69,7 @@ namespace API.Controllers
 
             carMapped.IsReserved = await _carRepository.IsReservedAsync(id);
 
-
+            carMapped.IsRented = await _carRepository.IsRentedAsync(id);
            
 
             return Ok(carMapped);

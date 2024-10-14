@@ -24,5 +24,6 @@ namespace Core.Interface
 
 
         Task<bool> IsReservedAsync(int carId);
+        Task<bool> IsRentedAsync(int id);
     }
 }

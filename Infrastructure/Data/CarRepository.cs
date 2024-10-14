@@ -142,7 +142,13 @@ namespace Infrastructure.Data
 
         public async Task<bool> IsReservedAsync(int carId)
         {
-            return await _context.Reservations.AnyAsync(r=>r.CarId == carId);
+            return await _context.Reservations.AnyAsync(r=>r.CarId == carId && r.EndDate > DateTime.Now);
+        }
+
+        public async Task<bool> IsRentedAsync(int id)
+        {
+            return await _context.Rentals.AnyAsync(r => r.CarId == id
+                        && !r.ActualReturnDate.HasValue);
         }
     }
 

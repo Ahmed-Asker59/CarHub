@@ -9,6 +9,8 @@ namespace Core.Entities.Consts
     public enum CarServicesConfigurations
     {
         RegularReservationDays=3,
+        MaxRentalDurationDays = 30,
+        MaxAllowedCarsForRentals = 3,
         
     }
 }

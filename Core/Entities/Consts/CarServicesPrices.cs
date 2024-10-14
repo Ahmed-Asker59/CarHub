@@ -9,6 +9,7 @@ namespace Core.Entities.Consts
     public static class CarServicesPrices
     {
         public const decimal ReservationRatio = 0.01m;
-
+        public const decimal LateFeeRatioPerDay = 0.004m;
+        public const decimal RentalRatio = 0.002m;
     }
 }

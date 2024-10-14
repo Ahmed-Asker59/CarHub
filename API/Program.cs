@@ -26,6 +26,7 @@ builder.Services.AddDbContext<CarContext>(opt =>
 builder.Services.AddScoped<ICarRepository, CarRepository>();
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+builder.Services.AddScoped<IRentRepository, RentRepository>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddCors(options =>
 {

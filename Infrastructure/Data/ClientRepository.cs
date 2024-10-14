@@ -44,6 +44,7 @@ namespace Infrastructure.Data
                        .Include(c => c.Reservations)
                        .Include(c=>c.Rentals)
                        .FirstOrDefaultAsync();
+
         }
     }
 }

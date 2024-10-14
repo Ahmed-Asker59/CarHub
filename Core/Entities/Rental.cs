@@ -1,61 +1,68 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
+﻿using Core.Entities.Consts;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-//namespace Core.Entities
-//{
-//    public class Rental : OrderBaseEntity
-//    {
-//        public bool IsReturned { get; set; }
+namespace Core.Entities
+{
+    public class Rental : OrderBaseEntity
+    {
+        public Rental()
+        {
+            EndDate = DateTime.Now.AddDays((double)RentalDays);
 
-//        public DateTime? ActualReturnedDate { get; set; }
-//        public decimal LateFeePerDay
-//        {
-//            get { return CalcLateFeePerDay(); }
-//        }
+        }
+        public int RentalDays { get; set; }
 
-//        public decimal RentalPrice
-//        {
-//            get { return CalcRentalPrice(); }
-//        }
+        public DateTime? ActualReturnDate { get; set; }
+        public int DelayInDays { 
+            get{
+                var delay = 0;
+                if(ActualReturnDate.HasValue && ActualReturnDate > EndDate)
+                    delay = (int)(ActualReturnDate.Value - EndDate).TotalDays;
 
-//        public decimal TotalRentalPrice
-//        {
-//            get { return CalcTotalRentalPrice(); }
-//        }
+                else if (!ActualReturnDate.HasValue && DateTime.Today > EndDate)
+                     delay = (int)(DateTime.Today - EndDate).TotalDays;
 
+                return delay;
 
+             }
+        }
+        //public decimal LateFeePerDay
+        //{
+        //    get { return CalcLateFeePerDay(); }
+        //    set { value = CalcLateFeePerDay(); }
+        //}
 
+        public decimal RentalPrice { get; set; }
+        public decimal TotalRentalPrice
+        {
+            get { return CalcTotalRentalPrice(); }           
+        }
 
-//        private decimal CalcLateFeePerDay()
-//        {
-//            return RentalPrice * Convert.ToDecimal(.1);
-//        }
-//        private decimal CalcRentalPrice()
-//        {
-//            return Car.Price * Convert.ToDecimal(.03);
-//        }
-//        private decimal CalcTotalRentalPrice()
-//        {
-//            decimal totalPrice = RentalPrice;
+        //private decimal CalcLateFeePerDay()
+        //{
+        //    return Car.Price * CarServicesPrices.LateFeeRatioPerDay;
+        //}
+        private decimal CalcTotalRentalPrice()
+        {
+            decimal totalPrice = RentalPrice;
 
+            if (ActualReturnDate.HasValue && ActualReturnDate > EndDate)
+            {
+                TimeSpan ReturnDelay = ActualReturnDate.Value - EndDate;
 
+                int daysLate = ReturnDelay.Days;
+                if (daysLate > 0)
+                {
+                    totalPrice += daysLate * CarServicesPrices.LateFeeRatioPerDay;
+                }
+            }
 
-//            if (IsReturned && ActualReturnedDate > EndDate)
-//            {
-//                TimeSpan ReturnDelay = ActualReturnedDate.Value - EndDate;
+            return totalPrice;
 
-//                int daysLate = ReturnDelay.Days;
-//                if (daysLate > 0)
-//                {
-//                    totalPrice += daysLate * LateFeePerDay;
-//                }
-//            }
-
-//            return totalPrice;
-
-//        }
-//    }
-//}
+        }
+    }
+}

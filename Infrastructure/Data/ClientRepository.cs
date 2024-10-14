@@ -40,7 +40,10 @@ namespace Infrastructure.Data
         }
         public Task<Client?> GetClientByNationalIdAsync(string nationalId)
         {
-            return _context.Clients.SingleOrDefaultAsync(c => c.NationalId == nationalId);
+            return _context.Clients.Where(c => c.NationalId == nationalId)
+                       .Include(c => c.Reservations)
+                       .Include(c=>c.Rentals)
+                       .FirstOrDefaultAsync();
         }
     }
 }

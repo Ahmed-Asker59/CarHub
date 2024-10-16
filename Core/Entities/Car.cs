@@ -57,7 +57,6 @@ namespace Core.Entities
 
         [MaxLength(200)]
         public string? Description { get; set; }
-        
         public bool IsAvailableForReserve { get; set; }
         public bool IsAvailableForRental { get; set; }
 

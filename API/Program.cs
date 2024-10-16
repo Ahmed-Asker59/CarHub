@@ -3,6 +3,7 @@ using Infrastructure;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,8 @@ builder.Services.AddScoped<ICarRepository, CarRepository>();
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IRentRepository, RentRepository>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddCors(options =>
 {
@@ -50,6 +53,7 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseCors("CorsPolicy");
+
 
 app.UseAuthorization();
 

@@ -8,6 +8,10 @@ using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
+using Microsoft.Extensions.Options;
+using Stripe;
+
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -26,7 +30,19 @@ builder.Services.AddDbContext<CarContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+
+
+builder.Services.AddScoped<ICarRepository, CarRepository>();
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
+builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+builder.Services.AddScoped<IRentRepository, RentRepository>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddCors(options =>
+
 builder.Services.AddDbContext<AppIdentityDBContext>(opt =>
+
 {
     opt.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection"));
 });
@@ -70,6 +86,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+
 app.UseAuthorization();
 app.UseRouting();
 app.UseAuthentication();
@@ -86,8 +103,7 @@ var logger = services.GetRequiredService<ILogger<Program>>();
 
 try
 {
-    // await context.Database.MigrateAsync();
-    // await identityContext.Database.MigrateAsync();
+   
     await CarContextSeed.SeedAsync(context);
     await AppIdentityDbContextSeed.SeedUserAsync(userManger);
 }

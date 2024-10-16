@@ -22,6 +22,7 @@ namespace API.DTO
         public bool IsReserved { get; set; }
         public bool IsRented { get; set; }
         public decimal? ReservationFee { get; set; }
+        public decimal? RentalFeePerDay { get; set; }
         public bool IsAvailableForRental { get; set; }
 
         public string? ImagePath { get; set; }

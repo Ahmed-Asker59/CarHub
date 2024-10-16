@@ -5,6 +5,7 @@ using Core.Entities.Consts;
 using Core.Interface;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,7 +32,7 @@ namespace API.Controllers
             _mapper = mapper;
         }
         [HttpGet("isallowedtorent/{nationalId}")]
-        public async Task<ActionResult> IsAllowedToRent(string nationalId)
+        public async Task<ActionResult<RentalResponseDTO>> IsAllowedToRent(string nationalId)
         {
             var client = await _clientRepository.GetClientByNationalIdAsync(nationalId);
             if (client != null)
@@ -41,37 +42,37 @@ namespace API.Controllers
                 var allowdRentals = (int)CarServicesConfigurations.MaxAllowedCarsForRentals - currentRentals;
                 if (allowdRentals == 0)
                 {
-                    return BadRequest(
-                        new
+                    return
+                        new RentalResponseDTO
                         {
-                            allowed = false,
-                            message = "Maximum Allowed Rental Times are Exceded"
-                        }
-                    );
+                            IsAllowed = false,
+                            Message = "Maximum Allowed Rental Times is Exceded"
+                        };
+                    
                 }
                 else
                 {
-                    return Ok(new
+                    return new RentalResponseDTO
                     {
-                        allowed = true,
-                        message = "You can rent"
-                    });
+                        IsAllowed = true,
+                        Message = "You can rent"
+                    };
                 }
 
             }
-            return Ok(new
+            return new RentalResponseDTO
             {
-                allowed = true,
-                message = "Allowed to rent , client did not rent before"
-            });
+                IsAllowed = true,
+                Message = "Allowed to rent , client did not rent before"
+            };
         }
 
         [HttpPost("rent")]
-        public async Task<ActionResult> RentCar([FromBody]ClientDTO clientDto,[FromQuery] int carId, [FromQuery] int rentalDays)
+        public async Task<ActionResult<RentalResponseDTO>> RentCar([FromBody]ClientDTO clientDto,[FromQuery] int carId, [FromQuery] int rentalDays)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest("Data Entered is not valid!");
+                return BadRequest(ModelState);
             }
             else
             {
@@ -84,6 +85,10 @@ namespace API.Controllers
                 {
                     return BadRequest("Car is doesnot exist or is not available for rental");
                 }
+
+                var isRented = await _carRepository.IsRentedAsync(carId);
+                if (isRented)
+                    return new RentalResponseDTO() { IsAllowed = false, Message = "Car is already rented" };
                 var client = await _clientRepository.GetClientByNationalIdAsync(clientDto.NationalId);
                 if (client != null)
                 {
@@ -111,7 +116,7 @@ namespace API.Controllers
                 }
                 
             }
-            return Ok("Rental is completed Successfully");
+            return Ok(new RentalResponseDTO() { IsAllowed = true , Message = string.Empty});
         }
     }
 }

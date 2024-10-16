@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-using Microsoft.Extensions.Options;
+    using Microsoft.Extensions.Options;
 using Stripe;
 
 using Microsoft.IdentityModel.Tokens;
@@ -75,7 +75,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 });
 builder.Services.AddAuthorization();
 
-builder.Services.AddScoped<ITokenServices, TokenServices>();
+builder.Services.AddScoped<ITokenService, JWTTokenService>();
 
 
 var app = builder.Build();

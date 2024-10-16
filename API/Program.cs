@@ -75,8 +75,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 });
 builder.Services.AddAuthorization();
 
-builder.Services.AddScoped<ICarRepository, CarRepository>();
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<ITokenServices, TokenServices>();
 
 

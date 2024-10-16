@@ -1,19 +1,26 @@
+
+using Core.Identity;
 using Core.Interface;
 using Infrastructure;
 using Infrastructure.Data;
+using Infrastructure.Identity;
+using Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
 using Microsoft.Extensions.Options;
 using Stripe;
+
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-//    .AddJsonOptions(options =>
-//    {
-//        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-//    });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -24,6 +31,7 @@ builder.Services.AddDbContext<CarContext>(opt =>
 });
 
 
+
 builder.Services.AddScoped<ICarRepository, CarRepository>();
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
@@ -32,12 +40,38 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddCors(options =>
+
+builder.Services.AddDbContext<AppIdentityDBContext>(opt =>
+
 {
-    options.AddPolicy("CorsPolicy", policy =>
-    {
-        policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
-    });
+    opt.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection"));
 });
+builder.Services.AddIdentityCore<AppUser>(opt =>
+{
+
+}).AddEntityFrameworkStores<AppIdentityDBContext>().AddSignInManager<SignInManager<AppUser>>();
+
+var jwt = builder.Configuration.GetSection("Token");
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+.AddJwtBearer(options => {
+    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"])),
+        ValidIssuer = jwt["Issuer"],
+        ValidateIssuer = true,
+        ValidateAudience = false,
+
+
+
+    };
+
+});
+builder.Services.AddAuthorization();
+
+builder.Services.AddScoped<ICarRepository, CarRepository>();
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddScoped<ITokenServices, TokenServices>();
 
 
 var app = builder.Build();
@@ -50,26 +84,33 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
-app.UseCors("CorsPolicy");
 
 
 app.UseAuthorization();
+app.UseRouting();
+app.UseAuthentication();
 
 app.MapControllers();
 
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 var context = services.GetRequiredService<CarContext>();
+var identityContext = services.GetRequiredService<AppIdentityDBContext>();
+var userManger = services.GetRequiredService<UserManager<AppUser>>();
+
 var logger = services.GetRequiredService<ILogger<Program>>();
 
 try
 {
+   
     await CarContextSeed.SeedAsync(context);
+    await AppIdentityDbContextSeed.SeedUserAsync(userManger);
 }
-catch(Exception ex)
+catch (Exception ex)
 {
-    logger.LogError(ex,ex.Message);
+    logger.LogError(ex, ex.Message);
 }
 app.Run();
+
+

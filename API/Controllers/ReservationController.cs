@@ -58,6 +58,7 @@ public class ReservationController : ControllerBase
             Message = "Client reservation has already ended."
         };
 
+        
     }
 
 
@@ -84,6 +85,7 @@ public class ReservationController : ControllerBase
 
         if (client is not null)
         {
+            //confirm order
             await _reservationRepository.CreateReservationAsync(car.Id, client.Id );
         }
         else
@@ -94,7 +96,7 @@ public class ReservationController : ControllerBase
             await _reservationRepository.CreateReservationAsync( car.Id, clientId);
         }
 
-        return new ReserveResponseDTO { IsAllowed = true, Message = string.Empty };
+        return Ok(new ReserveResponseDTO() { IsAllowed = true, Message = string.Empty });
     }
 
     

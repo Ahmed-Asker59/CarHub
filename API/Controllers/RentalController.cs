@@ -96,13 +96,13 @@ namespace API.Controllers
                     var allowdRentals = (int)CarServicesConfigurations.MaxAllowedCarsForRentals - currentRentals;
                     if (allowdRentals == 0)
                     {
-                        return BadRequest(
-                            new
+                        return
+                            new RentalResponseDTO
                             {
-                                allowed = false,
-                                message = "Maximum Allowed Rental Times are Exceded"
-                            }
-                        );
+                                IsAllowed = false,
+                                Message = "Maximum Allowed Rental Times are Exceded"
+                            };
+                        
                     }
                     await _rentRepository.RentCar(client.Id, carId, rentalDays);
 

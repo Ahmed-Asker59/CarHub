@@ -29,40 +29,40 @@ public class ReservationController : ControllerBase
 
 
     [HttpGet("allowedtoreserve/{nationalId}")]
-    public async Task<ActionResult> IsAllowedToReserve(string nationalId)
+    public async Task<ActionResult<ReserveResponseDTO>> IsAllowedToReserve(string nationalId)
     {
         var client = await _clientRepository.GetClientByNationalIdAsync(nationalId);
 
         if (client is null)
         {
-            return Ok(new
+            return new ReserveResponseDTO()
             {
-                allowed = true,
-                message = "Client did not reserve before"
-            });
+                IsAllowed = true,
+                Message = "Client did not reserve before"
+            };
         }
 
         var lastReservation = client.Reservations.LastOrDefault();
         if (lastReservation is not null && lastReservation.EndDate > DateTime.Now)
         {
-            return BadRequest(new
+            return new ReserveResponseDTO()
             {
-                allowed = false,
-                message = "Client already has an active reservation."
-            });
+                IsAllowed = false,
+                Message = "Client already has an active reservation."
+            };
         }
 
-        return Ok(new
+        return new ReserveResponseDTO()
         {
-            allowed = true,
-            message = "Last Reservation Has Already ended"
-        });
+            IsAllowed = true,
+            Message = "Client reservation has already ended."
+        };
 
     }
 
 
     [HttpPost("reserve")]
-    public async Task<ActionResult> ReserveCar([FromBody] ClientDTO clientDTO, [FromQuery] int carId)
+    public async Task<ActionResult<ReserveResponseDTO>> ReserveCar([FromBody] ClientDTO clientDTO, [FromQuery] int carId)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -76,6 +76,9 @@ public class ReservationController : ControllerBase
         {
             return BadRequest("Car is either not available for reservation or does not exist");
         }
+        var isRented = await _carRepository.IsReservedAsync(carId);
+        if (isRented)
+            return new ReserveResponseDTO() { IsAllowed = false, Message = "Car is already reserved" };
 
         var client = await _clientRepository.GetClientByNationalIdAsync(clientDTO.NationalId);
 
@@ -91,7 +94,7 @@ public class ReservationController : ControllerBase
             await _reservationRepository.CreateReservationAsync( car.Id, clientId);
         }
 
-        return Ok();
+        return new ReserveResponseDTO { IsAllowed = true, Message = string.Empty };
     }
 
     

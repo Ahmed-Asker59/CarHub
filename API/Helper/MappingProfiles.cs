@@ -2,6 +2,7 @@
 using AutoMapper;
 using Core.Entities;
 using Core.Entities.Consts;
+using Core.Identity;
 namespace API.Helper
 {
     public class MappingProfiles : Profile
@@ -24,6 +25,7 @@ namespace API.Helper
 
             CreateMap<ModelVariant, ModelVariantDTO>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ToString()));
+            CreateMap<Address, AddressDTO>().ReverseMap();
         }
 
     }

@@ -39,7 +39,13 @@ builder.Services.AddScoped<IRentRepository, RentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-builder.Services.AddCors(options =>
+builder.Services.AddCors(opt => 
+   opt.AddPolicy("CorsPolice", policy =>
+   {
+       policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
+   })
+
+);
 
 builder.Services.AddDbContext<AppIdentityDBContext>(opt =>
 
@@ -85,11 +91,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseCors("CorsPolice");
 
-
-app.UseAuthorization();
 app.UseRouting();
 app.UseAuthentication();
+app.UseAuthorization();
+
+
 
 app.MapControllers();
 

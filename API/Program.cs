@@ -14,6 +14,7 @@ using Stripe;
 
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using API.Settings;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +25,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+
 
 builder.Services.AddDbContext<CarContext>(opt =>
 {
@@ -37,6 +40,7 @@ builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IRentRepository, RentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddTransient<IMailService, MailService>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddCors(options =>
@@ -45,7 +49,7 @@ builder.Services.AddDbContext<AppIdentityDBContext>(opt =>
 
 {
     opt.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection"));
-});
+}));
 builder.Services.AddIdentityCore<AppUser>(opt =>
 {
 
@@ -105,7 +109,7 @@ try
 {
    
     await CarContextSeed.SeedAsync(context);
-    await AppIdentityDbContextSeed.SeedUserAsync(userManger);
+    //await AppIdentityDbContextSeed.SeedUserAsync(userManger);
 }
 catch (Exception ex)
 {

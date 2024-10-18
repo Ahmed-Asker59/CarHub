@@ -14,16 +14,19 @@ public class ReservationController : ControllerBase
     private readonly IClientRepository _clientRepository;
     private readonly IReservationRepository _reservationRepository;
     private readonly IMapper _mapper;
+    private readonly IMailService _emailService;
 
     public ReservationController
         (CarContext context, ICarRepository repository,
-        IClientRepository clientRepository, IReservationRepository reservationRepository, IMapper mapper)
+        IClientRepository clientRepository, IReservationRepository reservationRepository,
+        IMapper mapper , IMailService emailService)
     {
         _context = context;
         _carRepository = repository;
         _clientRepository = clientRepository;
         _reservationRepository = reservationRepository;
         _mapper = mapper;
+        _emailService = emailService;
     }
 
 
@@ -95,7 +98,11 @@ public class ReservationController : ControllerBase
 
             await _reservationRepository.CreateReservationAsync( car.Id, clientId);
         }
+        // Send email notification
+        var emailSubject = "Car Reservation Confirmation";
+        var emailBody = $"Dear {clientDTO.FirstName + clientDTO.LastName},\n\nYour reservation for the car {car.Model} has been confirmed.\nThank you for choosing us!\n\nBest regards,\nYour Car Rental Team";
 
+        await _emailService.SendEmailAsync(clientDTO.Email, emailSubject, emailBody);
         return Ok(new ReserveResponseDTO() { IsAllowed = true, Message = string.Empty });
     }
 

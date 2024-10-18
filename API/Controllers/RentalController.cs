@@ -20,16 +20,18 @@ namespace API.Controllers
         private readonly IClientRepository _clientRepository;
         private readonly CarContext _Context;
         private readonly IMapper _mapper;
+        private readonly IMailService _mailService;
 
         public RentalController(ICarRepository carRepository,
             IRentRepository rentRepository, IClientRepository clientRepository,
-            CarContext Context, IMapper mapper)
+            CarContext Context, IMapper mapper, IMailService mailService)
         {
             _carRepository = carRepository;
             _rentRepository = rentRepository;
             _clientRepository = clientRepository;
             _Context = Context;
             _mapper = mapper;
+            _mailService = mailService;
         }
         [HttpGet("isallowedtorent/{nationalId}")]
         public async Task<ActionResult<RentalResponseDTO>> IsAllowedToRent(string nationalId)
@@ -114,7 +116,11 @@ namespace API.Controllers
                     await _rentRepository.RentCar(clientId, carId, rentalDays);
 
                 }
-                
+                // Send email notification
+                var emailSubject = "Car Rental Confirmation";
+                var emailBody = $"Dear {clientDto.FirstName+clientDto.LastName},\n\nYour rental for the car {car.Model} has been confirmed for {rentalDays} days.\nThank you for choosing us!\n\nBest regards,\nYour Car Rental Team";
+
+                await _mailService.SendEmailAsync(clientDto.Email, emailSubject, emailBody); // Use the email service
             }
             return Ok(new RentalResponseDTO() { IsAllowed = true , Message = string.Empty});
         }

@@ -8,8 +8,7 @@ using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
-    using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using Stripe;
 
 using Microsoft.IdentityModel.Tokens;
@@ -40,7 +39,7 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddCors(opt => 
-   opt.AddPolicy("CorsPolice", policy =>
+   opt.AddPolicy("CorsPolicy", policy =>
    {
        policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
    })
@@ -89,7 +88,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseCors("CorsPolice");
+app.UseCors("CorsPolicy");
 
 app.UseRouting();
 app.UseAuthentication();

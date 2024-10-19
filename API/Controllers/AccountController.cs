@@ -4,11 +4,8 @@ using AutoMapper;
 using Core.Identity;
 using Core.Interface;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using System.Security.Claims;
 
 namespace API.Controllers
 {
@@ -37,6 +34,8 @@ namespace API.Controllers
         {
             return "Secret Sting";
         }
+
+
         [HttpPost("login")]
         public async Task<ActionResult<UserDTO>> Login(LoginDTO loginDto)
         {
@@ -47,11 +46,12 @@ namespace API.Controllers
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
             if (!result.Succeeded)
                 return Unauthorized(new ApiResponse(401));
+
             return new UserDTO { Email = user.Email , Token = _Tokenservices.CreateToken(user), DisplayName = user.DisplayName };
 
         }
-        [HttpPost("Register")]
 
+        [HttpPost("register")]
         public async Task<ActionResult<UserDTO>> Register(RegisterDTO registerDTO)
         {
             var user = new AppUser
@@ -93,15 +93,14 @@ namespace API.Controllers
 
 
         }
-        [HttpGet("emailexists")]
 
-        public async Task<ActionResult<bool>> CheckEmailExistAsyn([FromQuery] string email)
+        [HttpGet("emailexists")]
+        public async Task<ActionResult<bool>> CheckEmailExist([FromQuery] string email)
         {
             return await _userManager.FindByEmailAsync(email) != null;
         }
 
         [HttpGet("address")]
-
         public async Task<ActionResult<AddressDTO>> GetUserAddress()
         {
             //var email= HttpContext.User?.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;

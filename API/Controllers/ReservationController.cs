@@ -94,6 +94,8 @@ public class ReservationController : ControllerBase
             var clientId = await _clientRepository.AddClientAsync(clientToAdd);
 
             await _reservationRepository.CreateReservationAsync( car.Id, clientId);
+             
+            
         }
 
         return Ok(new ReserveResponseDTO() { IsAllowed = true, Message = string.Empty });

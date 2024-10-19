@@ -2,6 +2,7 @@
 using AutoMapper;
 using Core.Entities;
 using Core.Interface;
+using Hangfire;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 
@@ -118,7 +119,8 @@ public class ReservationController : ControllerBase
         str.Close();
         mailText = mailText.Replace("[Header]","Reservation is Confirmed").Replace("[Body]",emailBody);
 
-        await _emailService.SendEmailAsync(clientDTO.Email, emailSubject, mailText);
+        BackgroundJob.Enqueue(() => _emailService.SendEmailAsync(clientDTO.Email, emailSubject, mailText));
+        
         return Ok(new ReserveResponseDTO() { IsAllowed = true, Message = string.Empty });
     }
 

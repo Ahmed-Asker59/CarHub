@@ -13,6 +13,7 @@ using Stripe;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using API.Settings;
+using Hangfire;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,10 +26,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 
-
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection"); 
 builder.Services.AddDbContext<CarContext>(opt =>
 {
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    opt.UseSqlServer(connectionString);
 });
 
 
@@ -39,6 +40,10 @@ builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IRentRepository, RentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddTransient<IMailService, MailService>();
+
+//backgroundjobs
+builder.Services.AddHangfire(x => x.UseSqlServerStorage(connectionString));
+builder.Services.AddHangfireServer();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddCors(opt => 
@@ -97,7 +102,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-
+app.UseHangfireDashboard("/Hangfire");
 
 app.MapControllers();
 

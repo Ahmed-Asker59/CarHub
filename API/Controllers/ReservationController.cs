@@ -102,23 +102,34 @@ public class ReservationController : ControllerBase
         }
         // Calculate reservation dates
         var reservationStartDate = DateTime.Now;
-        var reservationEndDate = reservationStartDate.AddDays(1); // Assuming a 1-day reservation; adjust as needed
+        var reservationEndDate = reservationStartDate.AddDays(3);
 
         // Send email notification
         var emailSubject = "Car Reservation Confirmation";
         var emailBody = $"Dear {clientDTO.FirstName} {clientDTO.LastName},<br/><br/>" +
-                        $"Your reservation for the car {car.Brand.Name} has been confirmed.<br/>" +
+                        $"Your reservation for the car {car.Brand.Name} {car.Make.Name} {car.ModelVariant} has been confirmed.<br/>" +
                         $"Reservation Start Date: {reservationStartDate:MMMM dd, yyyy}<br/>" +
                         $"Reservation End Date: {reservationEndDate:MMMM dd, yyyy}<br/><br/>" +
-                        "Thank you for choosing us!<br/>Best regards,<br/>Your Car Rental Team";
+                        "Thank you for choosing us!<br/>Best regards,<br/>Your Car Reservation Team";
 
         var filePath = $"{Directory.GetCurrentDirectory()}\\Templates\\EmailTemplate.html";
         var str = new StreamReader(filePath);
         var mailText = str.ReadToEnd();
         str.Close();
-        mailText = mailText.Replace("[Header]","Reservation is Confirmed").Replace("[Body]",emailBody);
 
+        // Replace the placeholders in the email template with actual values
+        mailText = mailText.Replace("[Type]", "Reservation")
+                           .Replace("[Header]", "Reservation is Confirmed")
+                           .Replace("[FirstName]", clientDTO.FirstName)
+                           .Replace("[LastName]", clientDTO.LastName)
+                           .Replace("[CarModel]", $"{car.Brand.Name} {car.Make.Name} {car.ModelVariant}")
+                           .Replace("[RentalStartDate]", reservationStartDate.ToString("MMMM dd, yyyy"))
+                           .Replace("[RentalEndDate]", reservationEndDate.ToString("MMMM dd, yyyy"))
+                           .Replace("[Body]", emailBody);  // If "Body" is a fallback
+
+        // Send the email
         await _emailService.SendEmailAsync(clientDTO.Email, emailSubject, mailText);
+
         return Ok(new ReserveResponseDTO() { IsAllowed = true, Message = string.Empty });
     }
 

@@ -18,11 +18,11 @@ namespace API.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
-        private readonly ITokenServices _Tokenservices;
+        private readonly ITokenService _Tokenservices;
         private readonly IMapper _mapper;
 
 
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ITokenServices Tokenservices, IMapper mapper)
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ITokenService Tokenservices, IMapper mapper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -37,7 +37,7 @@ namespace API.Controllers
         {
             return "Secret Sting";
         }
-        [HttpPost]
+        [HttpPost("login")]
         public async Task<ActionResult<UserDTO>> Login(LoginDTO loginDto)
         {
             var user = await _userManager.FindByEmailAsync(loginDto.Email);

@@ -12,13 +12,13 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {
-    public class TokenServices : ITokenServices
+    public class JWTTokenService : ITokenService
     {
         private readonly IConfiguration _Config;
         private readonly SymmetricSecurityKey _Key;
 
 
-        public TokenServices(IConfiguration Config)
+        public JWTTokenService(IConfiguration Config)
         {
             _Config = Config;
 
@@ -27,12 +27,9 @@ namespace Infrastructure.Services
 
         }
 
-        public string CreateToken(AppUser user)
-        {
-            throw new NotImplementedException();
-        }
+    
 
-        public string CreatToken(AppUser user)
+        public string CreateToken(AppUser user)
         {
             var Claims = new List<Claim> {
 
@@ -45,14 +42,14 @@ namespace Infrastructure.Services
 
 
             };
-            var cred = new SigningCredentials(_Key, SecurityAlgorithms.HmacSha512Signature);
+            var cred = new SigningCredentials(_Key, SecurityAlgorithms.HmacSha256);
             var TokenDiscriptor = new SecurityTokenDescriptor
             {
 
                 Subject = new ClaimsIdentity(Claims),
                 Expires = DateTime.Now.AddDays(7),
                 SigningCredentials = cred,
-                Issuer = _Config["Token:Issure"]
+                Issuer = _Config["Token:Issuer"]
 
 
 

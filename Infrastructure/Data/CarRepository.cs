@@ -65,6 +65,7 @@ namespace Infrastructure.Data
             && (!carParams.modelId.HasValue || c.ModelId == carParams.modelId)
             && (!carParams.modelVariant.HasValue || c.ModelVariant == carParams.modelVariant)
             && (!carParams.carCondition.HasValue || c.CarCondition == carParams.carCondition)
+            && (!carParams.transmission.HasValue || c.Transmission == carParams.transmission)
             && (!carParams.priceFrom.HasValue || c.Price >= carParams.priceFrom)
             && (!carParams.priceTo.HasValue || c.Price <= carParams.priceTo)
             && (!carParams.fuel.HasValue || c.Fuel == carParams.fuel)

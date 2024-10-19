@@ -55,7 +55,7 @@ builder.Services.AddDbContext<AppIdentityDBContext>(opt =>
 
 {
     opt.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection"));
-}));
+});
 builder.Services.AddIdentityCore<AppUser>(opt =>
 {
 
@@ -115,7 +115,7 @@ try
 {
    
     await CarContextSeed.SeedAsync(context);
-    //await AppIdentityDbContextSeed.SeedUserAsync(userManger);
+    await AppIdentityDbContextSeed.SeedUserAsync(userManger);
 }
 catch (Exception ex)
 {

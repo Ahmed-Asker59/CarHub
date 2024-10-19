@@ -98,11 +98,25 @@ public class ReservationController : ControllerBase
 
             await _reservationRepository.CreateReservationAsync( car.Id, clientId);
         }
+        // Calculate reservation dates
+        var reservationStartDate = DateTime.Now;
+        var reservationEndDate = reservationStartDate.AddDays(1); // Assuming a 1-day reservation; adjust as needed
+
         // Send email notification
         var emailSubject = "Car Reservation Confirmation";
-        var emailBody = $"Dear {clientDTO.FirstName + clientDTO.LastName},\n\nYour reservation for the car {car.Model} has been confirmed.\nThank you for choosing us!\n\nBest regards,\nYour Car Rental Team";
+        var emailBody = $"Dear {clientDTO.FirstName} {clientDTO.LastName},<br/><br/>" +
+                        $"Your reservation for the car {car.Brand.Name} has been confirmed.<br/>" +
+                        $"Reservation Start Date: {reservationStartDate:MMMM dd, yyyy}<br/>" +
+                        $"Reservation End Date: {reservationEndDate:MMMM dd, yyyy}<br/><br/>" +
+                        "Thank you for choosing us!<br/>Best regards,<br/>Your Car Rental Team";
 
-        await _emailService.SendEmailAsync(clientDTO.Email, emailSubject, emailBody);
+        var filePath = $"{Directory.GetCurrentDirectory()}\\Templates\\EmailTemplate.html";
+        var str = new StreamReader(filePath);
+        var mailText = str.ReadToEnd();
+        str.Close();
+        mailText = mailText.Replace("[Header]","Reservation is Confirmed").Replace("[Body]",emailBody);
+
+        await _emailService.SendEmailAsync(clientDTO.Email, emailSubject, mailText);
         return Ok(new ReserveResponseDTO() { IsAllowed = true, Message = string.Empty });
     }
 

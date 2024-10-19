@@ -116,10 +116,25 @@ namespace API.Controllers
                     await _rentRepository.RentCar(clientId, carId, rentalDays);
 
                 }
+                // Calculate start and end dates for the rental
+                var rentalStartDate = DateTime.Now;
+                var rentalEndDate = rentalStartDate.AddDays(rentalDays);
+
+                // Send email notification
                 // Send email notification
                 var emailSubject = "Car Rental Confirmation";
-                var emailBody = $"Dear {clientDto.FirstName+clientDto.LastName},\n\nYour rental for the car {car.Model} has been confirmed for {rentalDays} days.\nThank you for choosing us!\n\nBest regards,\nYour Car Rental Team";
-
+                var emailBody = $"Dear {clientDto.FirstName} {clientDto.LastName},<br/><br/>" +
+                                $"Your reservation for the car {car.Model} has been confirmed.<br/>" +
+                                $"Reservation Start Date: {rentalStartDate:MMMM dd, yyyy}<br/>" +
+                                $"Reservation End Date: {rentalEndDate:MMMM dd, yyyy}<br/><br/>" +
+                                $"Thank you for choosing us!<br/><br/>" +
+                                $"Best regards,<br/>" +
+                                $"Your Car Rental Team";
+                var filePath = $"{Directory.GetCurrentDirectory()}\\Templates\\EmailTemplate.html";
+                var str = new StreamReader(filePath);
+                var mailText = str.ReadToEnd();
+                str.Close();
+                mailText = mailText.Replace("[Header]", "Reservation is Confirmed").Replace("[Body]", emailBody);
                 await _mailService.SendEmailAsync(clientDto.Email, emailSubject, emailBody); // Use the email service
             }
             return Ok(new RentalResponseDTO() { IsAllowed = true , Message = string.Empty});

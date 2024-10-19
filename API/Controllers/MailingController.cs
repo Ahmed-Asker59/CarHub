@@ -28,7 +28,7 @@ namespace API.Controllers
             var str = new StreamReader(filePath);
             var mailText = str.ReadToEnd();
             str.Close();
-            mailText = mailText.Replace("[username]", dto.UserName).Replace("[Email]",dto.Email);
+            mailText = mailText.Replace("[Email]",dto.Email);
             await _mailService.SendEmailAsync(dto.Email, "Welcome to CarHub", mailText);
             return Ok();
         }

@@ -14,16 +14,19 @@ public class ReservationController : ControllerBase
     private readonly IClientRepository _clientRepository;
     private readonly IReservationRepository _reservationRepository;
     private readonly IMapper _mapper;
+    private readonly IMailService _emailService;
 
     public ReservationController
         (CarContext context, ICarRepository repository,
-        IClientRepository clientRepository, IReservationRepository reservationRepository, IMapper mapper)
+        IClientRepository clientRepository, IReservationRepository reservationRepository,
+        IMapper mapper , IMailService emailService)
     {
         _context = context;
         _carRepository = repository;
         _clientRepository = clientRepository;
         _reservationRepository = reservationRepository;
         _mapper = mapper;
+        _emailService = emailService;
     }
 
 
@@ -95,7 +98,25 @@ public class ReservationController : ControllerBase
 
             await _reservationRepository.CreateReservationAsync( car.Id, clientId);
         }
+        // Calculate reservation dates
+        var reservationStartDate = DateTime.Now;
+        var reservationEndDate = reservationStartDate.AddDays(1); // Assuming a 1-day reservation; adjust as needed
 
+        // Send email notification
+        var emailSubject = "Car Reservation Confirmation";
+        var emailBody = $"Dear {clientDTO.FirstName} {clientDTO.LastName},<br/><br/>" +
+                        $"Your reservation for the car {car.Brand.Name} has been confirmed.<br/>" +
+                        $"Reservation Start Date: {reservationStartDate:MMMM dd, yyyy}<br/>" +
+                        $"Reservation End Date: {reservationEndDate:MMMM dd, yyyy}<br/><br/>" +
+                        "Thank you for choosing us!<br/>Best regards,<br/>Your Car Rental Team";
+
+        var filePath = $"{Directory.GetCurrentDirectory()}\\Templates\\EmailTemplate.html";
+        var str = new StreamReader(filePath);
+        var mailText = str.ReadToEnd();
+        str.Close();
+        mailText = mailText.Replace("[Header]","Reservation is Confirmed").Replace("[Body]",emailBody);
+
+        await _emailService.SendEmailAsync(clientDTO.Email, emailSubject, mailText);
         return Ok(new ReserveResponseDTO() { IsAllowed = true, Message = string.Empty });
     }
 

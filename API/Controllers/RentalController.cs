@@ -20,16 +20,18 @@ namespace API.Controllers
         private readonly IClientRepository _clientRepository;
         private readonly CarContext _Context;
         private readonly IMapper _mapper;
+        private readonly IMailService _mailService;
 
         public RentalController(ICarRepository carRepository,
             IRentRepository rentRepository, IClientRepository clientRepository,
-            CarContext Context, IMapper mapper)
+            CarContext Context, IMapper mapper, IMailService mailService)
         {
             _carRepository = carRepository;
             _rentRepository = rentRepository;
             _clientRepository = clientRepository;
             _Context = Context;
             _mapper = mapper;
+            _mailService = mailService;
         }
         [HttpGet("isallowedtorent/{nationalId}")]
         public async Task<ActionResult<RentalResponseDTO>> IsAllowedToRent(string nationalId)
@@ -114,7 +116,26 @@ namespace API.Controllers
                     await _rentRepository.RentCar(clientId, carId, rentalDays);
 
                 }
-                
+                // Calculate start and end dates for the rental
+                var rentalStartDate = DateTime.Now;
+                var rentalEndDate = rentalStartDate.AddDays(rentalDays);
+
+                // Send email notification
+                // Send email notification
+                var emailSubject = "Car Rental Confirmation";
+                var emailBody = $"Dear {clientDto.FirstName} {clientDto.LastName},<br/><br/>" +
+                                $"Your reservation for the car {car.Model} has been confirmed.<br/>" +
+                                $"Reservation Start Date: {rentalStartDate:MMMM dd, yyyy}<br/>" +
+                                $"Reservation End Date: {rentalEndDate:MMMM dd, yyyy}<br/><br/>" +
+                                $"Thank you for choosing us!<br/><br/>" +
+                                $"Best regards,<br/>" +
+                                $"Your Car Rental Team";
+                var filePath = $"{Directory.GetCurrentDirectory()}\\Templates\\EmailTemplate.html";
+                var str = new StreamReader(filePath);
+                var mailText = str.ReadToEnd();
+                str.Close();
+                mailText = mailText.Replace("[Header]", "Reservation is Confirmed").Replace("[Body]", emailBody);
+                await _mailService.SendEmailAsync(clientDto.Email, emailSubject, emailBody); // Use the email service
             }
             return Ok(new RentalResponseDTO() { IsAllowed = true , Message = string.Empty});
         }

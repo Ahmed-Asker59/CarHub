@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Stripe;
-
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using API.Settings;

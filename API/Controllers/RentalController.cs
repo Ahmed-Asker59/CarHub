@@ -135,7 +135,7 @@ namespace API.Controllers
                 var mailText = str.ReadToEnd();
                 str.Close();
                 mailText = mailText.Replace("[Header]", "Reservation is Confirmed").Replace("[Body]", emailBody);
-                await _mailService.SendEmailAsync(clientDto.Email, emailSubject, emailBody); // Use the email service
+                await _mailService.SendEmailAsync(clientDto.Email, emailSubject, mailText); // Use the email service
             }
             return Ok(new RentalResponseDTO() { IsAllowed = true , Message = string.Empty});
         }

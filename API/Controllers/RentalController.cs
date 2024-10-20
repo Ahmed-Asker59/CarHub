@@ -121,12 +121,11 @@ namespace API.Controllers
                 var rentalEndDate = rentalStartDate.AddDays(rentalDays);
 
                 // Send email notification
-                // Send email notification
                 var emailSubject = "Car Rental Confirmation";
                 var emailBody = $"Dear {clientDto.FirstName} {clientDto.LastName},<br/><br/>" +
-                                $"Your reservation for the car {car.Model} has been confirmed.<br/>" +
-                                $"Reservation Start Date: {rentalStartDate:MMMM dd, yyyy}<br/>" +
-                                $"Reservation End Date: {rentalEndDate:MMMM dd, yyyy}<br/><br/>" +
+                                $"Your Rent for the car {car.Model} has been confirmed.<br/>" +
+                                $"Rent Start Date: {rentalStartDate:MMMM dd, yyyy}<br/>" +
+                                $"Rent End Date: {rentalEndDate:MMMM dd, yyyy}<br/><br/>" +
                                 $"Thank you for choosing us!<br/><br/>" +
                                 $"Best regards,<br/>" +
                                 $"Your Car Rental Team";
@@ -134,8 +133,17 @@ namespace API.Controllers
                 var str = new StreamReader(filePath);
                 var mailText = str.ReadToEnd();
                 str.Close();
-                mailText = mailText.Replace("[Header]", "Reservation is Confirmed").Replace("[Body]", emailBody);
-                await _mailService.SendEmailAsync(clientDto.Email, emailSubject, mailText); // Use the email service
+                mailText = mailText.Replace("[Type]", "Rental")
+                                   .Replace("[Header]", "Rental is Confirmed")
+                                   .Replace("[FirstName]", clientDto.FirstName)
+                                   .Replace("[LastName]", clientDto.LastName)
+                                   .Replace("[CarModel]", $"{car.Brand.Name} {car.Make.Name} {car.ModelVariant}")
+                                   .Replace("[RentalStartDate]", rentalStartDate.ToString("MMMM dd, yyyy"))
+                                   .Replace("[RentalEndDate]", rentalEndDate.ToString("MMMM dd, yyyy"))
+                                   .Replace("[Body]", emailBody);  // If "Body" is a fallback
+
+                // Send the email
+                await _mailService.SendEmailAsync(clientDto.Email, emailSubject, mailText);
             }
             return Ok(new RentalResponseDTO() { IsAllowed = true , Message = string.Empty});
         }

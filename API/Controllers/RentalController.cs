@@ -125,7 +125,9 @@ namespace API.Controllers
                 // Calculate start and end dates for the rental
                 var rentalStartDate = DateTime.Now;
                 var rentalEndDate = rentalStartDate.AddDays(rentalDays);
-                var lateFeePerDay =  _rentRepository.CalcLateFeePerDay(carId);
+                var lateFeePerDay = await _rentRepository.CalcLateFeePerDay(carId);
+
+                
 
                 // Send email notification
                 var emailSubject = "Car Rental Confirmation";
@@ -135,7 +137,7 @@ namespace API.Controllers
             {"CarModel", $"{car.Brand.Name} {car.Make.Name} {car.ModelVariant}" },
             { "RentalStartDate", rentalStartDate.ToString("MMMM dd, yyyy") },
             {"RentalEndDate", rentalEndDate.ToString("MMMM dd, yyyy") },
-             {"PenaltyAmount",$"{lateFeePerDay.ToString()}" }
+             {"PenaltyAmount",$"{lateFeePerDay.ToString("C")}" }
             };
 
              var body = _emailBodyBuilder.GenerateEmailBody("Rent",placeholders);

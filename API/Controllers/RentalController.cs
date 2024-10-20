@@ -3,6 +3,7 @@ using AutoMapper;
 using Core.Entities;
 using Core.Entities.Consts;
 using Core.Interface;
+using Hangfire;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -20,19 +21,24 @@ namespace API.Controllers
         private readonly IClientRepository _clientRepository;
         private readonly CarContext _Context;
         private readonly IMapper _mapper;
-        private readonly IMailService _mailService;
+        private readonly IMailService _emailService;
+        private readonly IEmailBodyBuilder _emailBodyBuilder;
 
         public RentalController(ICarRepository carRepository,
             IRentRepository rentRepository, IClientRepository clientRepository,
-            CarContext Context, IMapper mapper, IMailService mailService)
+            CarContext Context, IMapper mapper, IMailService mailService, IEmailBodyBuilder emailBodyBuilder)
         {
             _carRepository = carRepository;
             _rentRepository = rentRepository;
             _clientRepository = clientRepository;
             _Context = Context;
             _mapper = mapper;
-            _mailService = mailService;
+            _emailService = mailService;
+            _emailBodyBuilder = emailBodyBuilder;
         }
+
+
+ 
         [HttpGet("isallowedtorent/{nationalId}")]
         public async Task<ActionResult<RentalResponseDTO>> IsAllowedToRent(string nationalId)
         {
@@ -111,7 +117,7 @@ namespace API.Controllers
                 }
                 else
                 {
-                    var clientToAdd = _mapper.Map<Client>(clientDto);
+                    var clientToAdd = _mapper.Map<Core.Entities.Client>(clientDto);
                     var clientId = await _clientRepository.AddClientAsync(clientToAdd);
                     await _rentRepository.RentCar(clientId, carId, rentalDays);
 
@@ -119,31 +125,23 @@ namespace API.Controllers
                 // Calculate start and end dates for the rental
                 var rentalStartDate = DateTime.Now;
                 var rentalEndDate = rentalStartDate.AddDays(rentalDays);
+                var lateFeePerDay =  _rentRepository.CalcLateFeePerDay(carId);
 
                 // Send email notification
                 var emailSubject = "Car Rental Confirmation";
-                var emailBody = $"Dear {clientDto.FirstName} {clientDto.LastName},<br/><br/>" +
-                                $"Your Rent for the car {car.Model} has been confirmed.<br/>" +
-                                $"Rent Start Date: {rentalStartDate:MMMM dd, yyyy}<br/>" +
-                                $"Rent End Date: {rentalEndDate:MMMM dd, yyyy}<br/><br/>" +
-                                $"Thank you for choosing us!<br/><br/>" +
-                                $"Best regards,<br/>" +
-                                $"Your Car Rental Team";
-                var filePath = $"{Directory.GetCurrentDirectory()}\\Templates\\EmailTemplate.html";
-                var str = new StreamReader(filePath);
-                var mailText = str.ReadToEnd();
-                str.Close();
-                mailText = mailText.Replace("[Type]", "Rental")
-                                   .Replace("[Header]", "Rental is Confirmed")
-                                   .Replace("[FirstName]", clientDto.FirstName)
-                                   .Replace("[LastName]", clientDto.LastName)
-                                   .Replace("[CarModel]", $"{car.Brand.Name} {car.Make.Name} {car.ModelVariant}")
-                                   .Replace("[RentalStartDate]", rentalStartDate.ToString("MMMM dd, yyyy"))
-                                   .Replace("[RentalEndDate]", rentalEndDate.ToString("MMMM dd, yyyy"))
-                                   .Replace("[Body]", emailBody);  // If "Body" is a fallback
+                var placeholders = new Dictionary<string, string>()
+            {
+            {"FirstName", $"{clientDto.FirstName}" },
+            {"CarModel", $"{car.Brand.Name} {car.Make.Name} {car.ModelVariant}" },
+            { "RentalStartDate", rentalStartDate.ToString("MMMM dd, yyyy") },
+            {"RentalEndDate", rentalEndDate.ToString("MMMM dd, yyyy") },
+             {"PenaltyAmount",$"{lateFeePerDay.ToString()}" }
+            };
 
+             var body = _emailBodyBuilder.GenerateEmailBody("Rent",placeholders);
                 // Send the email
-                await _mailService.SendEmailAsync(clientDto.Email, emailSubject, mailText);
+                BackgroundJob.Enqueue(() => _emailService.SendEmailAsync(clientDto.Email, emailSubject, body));
+
             }
             return Ok(new RentalResponseDTO() { IsAllowed = true , Message = string.Empty});
         }

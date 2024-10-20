@@ -10,5 +10,7 @@ namespace Core.Interface
     public interface IRentRepository
     {
         Task<bool> RentCar(int clientId, int carId, int rentDays);
+        Task<IReadOnlyList<Client>> GetClientsToAlert();
+        Task<decimal> CalcLateFeePerDay(int carId);
     }
 }

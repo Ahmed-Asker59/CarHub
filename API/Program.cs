@@ -14,6 +14,11 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using API.Settings;
 using Hangfire;
+using Hangfire.Dashboard;
+using API.Filters;
+using Microsoft.AspNetCore.Authorization;
+using API.Tasks;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -40,10 +45,22 @@ builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IRentRepository, RentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddTransient<IMailService, MailService>();
+builder.Services.AddTransient<IEmailBodyBuilder, EmailBodyBuilder>();
+
+
 
 //backgroundjobs
 builder.Services.AddHangfire(x => x.UseSqlServerStorage(connectionString));
 builder.Services.AddHangfireServer();
+builder.Services.Configure<AuthorizationOptions>(
+
+   opt => opt.AddPolicy("staffOnly", policy =>
+   {
+       policy.RequireAuthenticatedUser();
+   })
+
+);
+
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddCors(opt => 
@@ -53,6 +70,7 @@ builder.Services.AddCors(opt =>
    })
 
 );
+
 
 builder.Services.AddDbContext<AppIdentityDBContext>(opt =>
 
@@ -101,11 +119,6 @@ app.UseCors("CorsPolicy");
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseHangfireDashboard("/Hangfire");
-
-app.MapControllers();
-
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 var context = services.GetRequiredService<CarContext>();
@@ -116,7 +129,7 @@ var logger = services.GetRequiredService<ILogger<Program>>();
 
 try
 {
-   
+
     await CarContextSeed.SeedAsync(context);
     await AppIdentityDbContextSeed.SeedUserAsync(userManger);
 }
@@ -124,6 +137,20 @@ catch (Exception ex)
 {
     logger.LogError(ex, ex.Message);
 }
+
+
+app.UseHangfireDashboard("/Hangfire");
+var emailSender = services.GetRequiredService<IMailService>();
+var carRepository = services.GetRequiredService<ICarRepository>();
+var clientRepository = services.GetRequiredService<IClientRepository>();
+var reservationRepository = services.GetRequiredService<IReservationRepository>();
+var rentalRepository = services.GetRequiredService<IRentRepository>();
+var emailBodyBuilder = services.GetRequiredService<IEmailBodyBuilder>();
+var hangfireTasks = new hangfireTasks(carRepository, clientRepository, reservationRepository, rentalRepository, emailSender, emailBodyBuilder);
+RecurringJob.AddOrUpdate(() => hangfireTasks.PrepareExpirationAlert(), "0 14 * * *");
+app.MapControllers();
+
+
 app.Run();
 
 

@@ -24,7 +24,7 @@ namespace Core.Specifications
         public int? modelId { get; set; }
         public ModelVariant? modelVariant { get; set; }
         public CarCondition? carCondition { get; set; }
-        public TransmissionType? Transmission { get; set; }
+        public TransmissionType? transmission { get; set; }
         public int? priceFrom { get; set; }
         public int? priceTo { get; set; }
         public FuelType? fuel { get; set; }

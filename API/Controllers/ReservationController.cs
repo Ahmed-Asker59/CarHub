@@ -1,7 +1,9 @@
 ﻿using API.DTO;
 using AutoMapper;
 using Core.Entities;
+using Core.Entities.Consts;
 using Core.Interface;
+using Hangfire;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,11 +17,12 @@ public class ReservationController : ControllerBase
     private readonly IReservationRepository _reservationRepository;
     private readonly IMapper _mapper;
     private readonly IMailService _emailService;
+    private readonly IEmailBodyBuilder _emailBodyBuilder;
 
     public ReservationController
         (CarContext context, ICarRepository repository,
         IClientRepository clientRepository, IReservationRepository reservationRepository,
-        IMapper mapper , IMailService emailService)
+        IMapper mapper , IMailService emailService, IEmailBodyBuilder emailBodyBuilder)
     {
         _context = context;
         _carRepository = repository;
@@ -27,6 +30,7 @@ public class ReservationController : ControllerBase
         _reservationRepository = reservationRepository;
         _mapper = mapper;
         _emailService = emailService;
+        _emailBodyBuilder = emailBodyBuilder;
     }
 
 
@@ -80,8 +84,8 @@ public class ReservationController : ControllerBase
         {
             return BadRequest("Car is either not available for reservation or does not exist");
         }
-        var isRented = await _carRepository.IsReservedAsync(carId);
-        if (isRented)
+        var isReserved = await _carRepository.IsReservedAsync(carId);
+        if (isReserved)
             return new ReserveResponseDTO() { IsAllowed = false, Message = "Car is already reserved" };
 
         var client = await _clientRepository.GetClientByNationalIdAsync(clientDTO.NationalId);
@@ -102,25 +106,31 @@ public class ReservationController : ControllerBase
         }
         // Calculate reservation dates
         var reservationStartDate = DateTime.Now;
-        var reservationEndDate = reservationStartDate.AddDays(1); // Assuming a 1-day reservation; adjust as needed
+        var reservationEndDate = reservationStartDate.AddDays((int)CarServicesConfigurations.RegularReservationDays);
+
+        var placeholders = new Dictionary<string, string>()
+            {
+            {"FirstName", $"{clientDTO.FirstName}" },                         
+            {"CarModel", $"{car.Brand.Name} {car.Make.Name} {car.ModelVariant}" },
+            { "ReserveStartDate", reservationStartDate.ToString("MMMM dd, yyyy") },
+            {"ReserveEndDate", reservationEndDate.ToString("MMMM dd, yyyy") },
+    
+            };
+
 
         // Send email notification
         var emailSubject = "Car Reservation Confirmation";
-        var emailBody = $"Dear {clientDTO.FirstName} {clientDTO.LastName},<br/><br/>" +
-                        $"Your reservation for the car {car.Brand.Name} has been confirmed.<br/>" +
-                        $"Reservation Start Date: {reservationStartDate:MMMM dd, yyyy}<br/>" +
-                        $"Reservation End Date: {reservationEndDate:MMMM dd, yyyy}<br/><br/>" +
-                        "Thank you for choosing us!<br/>Best regards,<br/>Your Car Rental Team";
 
-        var filePath = $"{Directory.GetCurrentDirectory()}\\Templates\\EmailTemplate.html";
-        var str = new StreamReader(filePath);
-        var mailText = str.ReadToEnd();
-        str.Close();
-        mailText = mailText.Replace("[Header]","Reservation is Confirmed").Replace("[Body]",emailBody);
+        var body = _emailBodyBuilder.GenerateEmailBody("Reserve", placeholders);
 
-        await _emailService.SendEmailAsync(clientDTO.Email, emailSubject, mailText);
+        BackgroundJob.Enqueue(() => _emailService.SendEmailAsync(clientDTO.Email, emailSubject, body));
+        
         return Ok(new ReserveResponseDTO() { IsAllowed = true, Message = string.Empty });
     }
 
-    
+
+
+
+
+
 }

@@ -65,6 +65,7 @@ namespace Infrastructure.Data
             && (!carParams.modelId.HasValue || c.ModelId == carParams.modelId)
             && (!carParams.modelVariant.HasValue || c.ModelVariant == carParams.modelVariant)
             && (!carParams.carCondition.HasValue || c.CarCondition == carParams.carCondition)
+            && (!carParams.transmission.HasValue || c.Transmission == carParams.transmission)
             && (!carParams.priceFrom.HasValue || c.Price >= carParams.priceFrom)
             && (!carParams.priceTo.HasValue || c.Price <= carParams.priceTo)
             && (!carParams.fuel.HasValue || c.Fuel == carParams.fuel)
@@ -149,6 +150,20 @@ namespace Infrastructure.Data
         {
             return await _context.Rentals.AnyAsync(r => r.CarId == id
                         && !r.ActualReturnDate.HasValue);
+        }
+
+        public async Task<string> GetCarNameAsync(int carId)
+        {
+            var name = await _context.Cars
+                           .Where(c => c.Id == carId)
+                           .Include(c => c.Brand)
+                           .Include(c => c.Make)
+                           .Include(c => c.Model)
+                           .Select(c => c.Brand.Name + " " + c.Model.Name + " " + c.ModelVariant.ToString())
+                           .FirstOrDefaultAsync();
+
+
+            return name;
         }
     }
 

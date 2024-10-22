@@ -10,6 +10,7 @@ namespace Core.Interface
     public interface IRentRepository
     {
         Task<bool> RentCar(int clientId, int carId, int rentDays);
+
         Task<IReadOnlyList<Rental>> GetRentalsAsync(DateTime? From,DateTime? To);
         Task<IReadOnlyList<Rental>> GetDelayedRentalsAsync();
 

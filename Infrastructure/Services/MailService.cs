@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using MimeKit;
 using MailKit.Net.Smtp;
 
-namespace Infrastructure.Data
+namespace Infrastructure.Services
 {
     public class MailService : IMailService
     {
@@ -27,8 +27,8 @@ namespace Infrastructure.Data
             email.Body = builder.ToMessageBody();
             email.From.Add(new MailboxAddress(_mailSettings.DisplayName, _mailSettings.Email));
             using var smtp = new SmtpClient();
-            smtp.Connect(_mailSettings.Host, _mailSettings.Port,MailKit.Security.SecureSocketOptions.StartTls);
-            smtp.Authenticate(_mailSettings.Email,_mailSettings.Password);
+            smtp.Connect(_mailSettings.Host, _mailSettings.Port, MailKit.Security.SecureSocketOptions.StartTls);
+            smtp.Authenticate(_mailSettings.Email, _mailSettings.Password);
             await smtp.SendAsync(email);
             smtp.Disconnect(true);
         }

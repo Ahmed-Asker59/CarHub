@@ -29,6 +29,13 @@ namespace Infrastructure.Data
             return await SaveAsync();
         }
 
+        public async Task<IReadOnlyList<Reservation>> GetReservationsAsync()
+        {
+            return await _context.Reservations.Include(r => r.Client).Include(r => r.Car).Include(c => c.Car.Brand)
+                .Include(c => c.Car.Make)
+                .Include(c => c.Car.Model).AsNoTracking().ToListAsync();
+        }
+
         public  async Task<bool> SaveAsync()
         {
             var saved = await _context.SaveChangesAsync();

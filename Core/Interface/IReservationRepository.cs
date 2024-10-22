@@ -10,5 +10,6 @@ namespace Core.Interface
     {
         Task<bool> CreateReservationAsync(int CarId,int ClientId);
         Task<bool> SaveAsync();
+        Task<IReadOnlyList<Reservation>> GetReservationsAsync();
     }
 }

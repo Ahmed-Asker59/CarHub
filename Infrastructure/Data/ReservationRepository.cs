@@ -1,5 +1,6 @@
 ﻿using Core.Entities.Consts;
 using Core.Interface;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,13 @@ namespace Infrastructure.Data
             await _context.Reservations.AddAsync(reservation);
             
             return await SaveAsync();
+        }
+
+        public async Task<IReadOnlyList<Reservation>> GetReservationsAsync()
+        {
+            return await _context.Reservations.Include(r => r.Client).Include(r => r.Car).Include(c => c.Car.Brand)
+                .Include(c => c.Car.Make)
+                .Include(c => c.Car.Model).AsNoTracking().ToListAsync();
         }
 
         public  async Task<bool> SaveAsync()

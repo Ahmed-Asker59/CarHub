@@ -46,5 +46,13 @@ namespace Infrastructure.Data
                        .FirstOrDefaultAsync();
 
         }
+
+        public async Task<Client?> SearchClientAsync(string nationalId)
+        {
+            var client = await _context.Clients.Where(c => c.NationalId == nationalId)
+                                            .FirstOrDefaultAsync();                                
+                            
+            return client;
+        }
     }
 }

@@ -12,6 +12,7 @@ namespace Core.Interface
         Task<Client> GetClientByIdAsync(int Id);
         Task<int> AddClientAsync(Client client);
         Task<Client?> GetClientByNationalIdAsync(string nationalId);
+        Task<Client?> SearchClientAsync(string searchQuery);
 
     }
 }

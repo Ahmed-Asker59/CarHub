@@ -19,7 +19,7 @@ namespace API.Helper
 
             CreateMap<Make, MakeDTO>();
 
-            CreateMap<ClientDTO, Client>();
+            CreateMap<ClientDTO, Client>().ReverseMap();
 
             CreateMap<Model, ModelDTO>();
 

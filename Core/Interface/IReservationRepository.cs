@@ -12,5 +12,6 @@ namespace Core.Interface
         Task<bool> CreateReservationAsync(int CarId,int ClientId);
         Task<IReadOnlyList<Client>> GetClientsToAlert();
         Task<bool> SaveAsync();
+        Task<IReadOnlyList<Reservation>> GetReservationsAsync();
     }
 }

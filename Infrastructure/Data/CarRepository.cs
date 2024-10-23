@@ -165,6 +165,20 @@ namespace Infrastructure.Data
 
             return name;
         }
+
+        public string GetCarName(int carId)
+        {
+            var name =  _context.Cars
+                           .Where(c => c.Id == carId)
+                           .Include(c => c.Brand)
+                           .Include(c => c.Make)
+                           .Include(c => c.Model)
+                           .Select(c => c.Brand.Name + " " + c.Model.Name + " " + c.ModelVariant.ToString())
+                           .FirstOrDefault();
+
+
+            return name;
+        }
     }
 
 }

@@ -117,7 +117,7 @@ namespace API.Controllers
                 }
                 else
                 {
-                    var clientToAdd = _mapper.Map<Core.Entities.Client>(clientDto);
+                    var clientToAdd = _mapper.Map<Client>(clientDto);
                     var clientId = await _clientRepository.AddClientAsync(clientToAdd);
                     await _rentRepository.RentCar(clientId, carId, rentalDays);
 
@@ -147,5 +147,58 @@ namespace API.Controllers
             }
             return Ok(new RentalResponseDTO() { IsAllowed = true , Message = string.Empty});
         }
+
+
+        [HttpPost("{id}/return")]
+        public async Task<IActionResult> ReturnRental(int id)
+        {
+            var rental = await _rentRepository.GetRentalByIdAsync(id);
+
+            if (rental is null) return NotFound();
+
+            rental.EndDate = DateTime.Now;
+            await _rentRepository.ReturnRentalAsync(rental);
+
+            return Ok(new { message = "Rental returned successfully", endDate = rental.EndDate });
+        }
+
+
+        [HttpPost("{id}/cancel")]
+        public async Task<IActionResult> CancelRental(int id)
+        {
+            var rental = await _rentRepository.GetRentalByIdAsync(id);
+
+            if (rental is null) return NotFound();
+
+            var client = await _clientRepository.GetClientByIdAsync(rental.ClientId);
+
+            if (client is null) return NotFound();
+
+
+            var canceled =  await _rentRepository.CancelRentalAsync(rental);
+
+            if (canceled)
+            {
+
+                // Send email notification
+                var emailSubject = "Cancelation Alert!";
+                var placeholders = new Dictionary<string, string>()
+            {
+            {"FirstName", $"{client.FirstName}" },
+            {"OrderType", $"Rental" },
+            {"Car", $"{rental.Car.Brand.Name} {rental.Car.Model.Name} {rental.Car.ModelVariant}" },
+
+            };
+
+                var body = _emailBodyBuilder.GenerateEmailBody("CancelOrder", placeholders);
+                BackgroundJob.Enqueue(() => _emailService.SendEmailAsync(client.Email, emailSubject, body));
+            }
+
+
+            return Ok(new { message = "Rental has been canceled successfully"});
+        }
+
+
+
     }
 }

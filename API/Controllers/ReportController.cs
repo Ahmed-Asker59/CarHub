@@ -52,6 +52,14 @@ namespace API.Controllers
                 return NotFound("No Delayed Rentals Exists");
             }
 
+            foreach (var rental in DelayedRentalsMapped)
+            {
+                var latePerDay = await _rentRepository.CalcLateFeePerDay(rental.CarId);
+
+                rental.LateFee = latePerDay * rental.DelayInDays;
+                rental.RentalPrice = rental.LateFee + rental.RentalPrice;
+            }
+
             return Ok(DelayedRentalsMapped);
 
         }

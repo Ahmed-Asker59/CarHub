@@ -58,6 +58,30 @@ namespace Infrastructure.Data
 
         }
 
-      
+        public async Task<Reservation?> GetReservationByIdAsync(int id)
+        {
+            return await _context.Reservations
+                                 .Where(r => r .Id == id)
+                                 .Include(r => r.Car)
+                                 .Include(r => r.Car.Brand)
+                                 .Include(r => r.Car.Model)
+                                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<bool> EndReservationAsync(Reservation reservation)
+        {
+            
+
+            reservation.EndDate = DateTime.Today;
+
+            return await SaveAsync();
+        }
+
+        public Task<bool> CancelReservationAsync(Reservation reservation)
+        {
+            _context.Reservations.Remove(reservation);
+
+            return SaveAsync();
+        }
     }
 }

@@ -20,6 +20,7 @@ namespace Core.Entities
         public int DelayInDays { 
             get{
                 var delay = 0;
+               
                 if(ActualReturnDate.HasValue && ActualReturnDate > EndDate)
                     delay = (int)(ActualReturnDate.Value - EndDate).TotalDays;
 
@@ -57,7 +58,7 @@ namespace Core.Entities
                 int daysLate = ReturnDelay.Days;
                 if (daysLate > 0)
                 {
-                    totalPrice += daysLate * CarServicesPrices.LateFeeRatioPerDay;
+                    totalPrice += (daysLate * CarServicesPrices.LateFeeRatioPerDay);
                 }
             }
 

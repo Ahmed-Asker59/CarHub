@@ -47,6 +47,41 @@ namespace Infrastructure.Data
 
         }
 
+        public async Task<string> GetEmailAsync(int clientId)
+        {
+            var client =  await _context.Clients.Where(c => c.Id == clientId)                                  
+                                   .FirstOrDefaultAsync();
+            if(client is not null)
+                return client.Email;
+
+            return string.Empty;
+                                   
+        }
+
+        public async Task<IReadOnlyList<Reservation>> GetReservationsAsync(int clientId)
+        {
+            var reservations = await _context.Reservations
+                                    .Where(r => r.ClientId == clientId)
+                                    .Include(r => r.Car)
+                                    .Include(r => r.Car.Model)
+                                    .Include(r => r.Car.Brand)
+                                    .OrderByDescending(r => r.Id).ToListAsync();
+
+            return reservations;
+        }
+
+        public async Task<IReadOnlyList<Rental>> GetRentalsAsync(int clientId)
+        {
+            var rentals = await _context.Rentals
+                                    .Where(r => r.ClientId == clientId)
+                                    .Include(r => r.Car)
+                                    .Include(r => r.Car.Model)
+                                    .Include(r => r.Car.Brand)
+                                    .OrderByDescending(r => r.Id).ToListAsync();
+
+            return rentals;
+        }
+
         public async Task<Client?> SearchClientAsync(string nationalId)
         {
             var client = await _context.Clients.Where(c => c.NationalId == nationalId)
@@ -54,5 +89,7 @@ namespace Infrastructure.Data
                             
             return client;
         }
+
+        
     }
 }

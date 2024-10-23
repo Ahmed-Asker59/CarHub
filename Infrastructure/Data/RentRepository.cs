@@ -39,6 +39,11 @@ namespace Infrastructure.Data
 
             return await query.ToListAsync();
         }
+
+        public async Task<IReadOnlyList<Rental>> GetClientRentals(int clientId)
+        {
+            return new List<Rental>();
+        }
         public async Task<IReadOnlyList<Rental>> GetDelayedRentalsAsync()
         {
             var DelayedRentals = await _context.Rentals
@@ -94,6 +99,47 @@ namespace Infrastructure.Data
                                .Price * CarServicesPrices.LateFeeRatioPerDay;
 
             return fee;
+        }
+
+        public async Task<int> GetDelaysInDaysAsync(int rentalId)
+        {
+            var delay = 0;
+
+            var rental = await _context.Rentals.FindAsync(rentalId);
+            if (rental.ActualReturnDate.HasValue && rental.ActualReturnDate > rental.EndDate)
+                delay = (int)(rental.ActualReturnDate.Value - rental.EndDate).TotalDays;
+
+            else if (!rental.ActualReturnDate.HasValue && DateTime.Today > rental.EndDate)
+                delay = (int)(DateTime.Today - rental.EndDate).TotalDays;
+
+            return delay;
+        }
+
+        public async Task<Rental?> GetRentalByIdAsync(int id)
+        {
+            return await _context.Rentals.FindAsync(id);
+        }
+
+        public async Task<bool> ReturnRentalAsync(Rental rental)
+        {
+            rental.ActualReturnDate = DateTime.Today;
+
+            return await SaveAsync();
+
+        }
+
+        public async Task<bool> CancelRentalAsync(Rental rental)
+        {
+             _context.Rentals.Remove(rental);
+
+
+            return await SaveAsync();
+        }
+
+        public async Task<bool> SaveAsync()
+        {
+            var saved = await _context.SaveChangesAsync();
+            return saved > 0 ? true : false;
         }
 
     }

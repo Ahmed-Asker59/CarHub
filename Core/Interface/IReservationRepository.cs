@@ -13,5 +13,8 @@ namespace Core.Interface
         Task<IReadOnlyList<Client>> GetClientsToAlert();
         Task<bool> SaveAsync();
         Task<IReadOnlyList<Reservation>> GetReservationsAsync();
+        Task<Reservation> GetReservationByIdAsync(int id);
+        Task<bool> EndReservationAsync(Reservation reservation);
+        Task<bool> CancelReservationAsync(Reservation reservation);
     }
 }

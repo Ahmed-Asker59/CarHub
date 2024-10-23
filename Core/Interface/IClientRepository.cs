@@ -11,8 +11,13 @@ namespace Core.Interface
     {
         Task<Client> GetClientByIdAsync(int Id);
         Task<int> AddClientAsync(Client client);
+        
         Task<Client?> GetClientByNationalIdAsync(string nationalId);
         Task<Client?> SearchClientAsync(string searchQuery);
 
+        Task<IReadOnlyList<Reservation>> GetReservationsAsync(int clientId);
+        Task<IReadOnlyList<Rental>> GetRentalsAsync(int clientId);
+        Task<string> GetEmailAsync(int clientId);
+        
     }
 }

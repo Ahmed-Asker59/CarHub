@@ -2,6 +2,7 @@
 {
     public class DelayedRentalDTO
     {
+        public int CarId { get; set; }
         public int ClientID { get; set; }
         public string ClientName { get; set; }
         public string ClientPhone { get; set; }
@@ -11,5 +12,7 @@
         public int DelayInDays { get; set; }
         public decimal RentalPrice { get; set; }
         public DateTime ActualReturnDate { get; set; }
+        public decimal LateFee { get; set; }
+
     }
 }

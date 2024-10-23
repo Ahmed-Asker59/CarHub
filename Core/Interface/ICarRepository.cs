@@ -16,6 +16,7 @@ namespace Core.Interface
 
         Task<int> CountAsync();
         Task<string> GetCarNameAsync(int carId);
+        string GetCarName(int carId);
         Task<IReadOnlyList<Car>> GetCarsWithSpecificationsAsync(CarSpecParams carParams);
         Task<IReadOnlyList<Make>> GetMakesAsync(int? brandId, int? makeId, int? modelId);
    
